@@ -1,0 +1,43 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>..\Signature\NetSerializerKeyPair.snk</AssemblyOriginatorKeyFile>
+    <RootNamespace>NetSerializer.V5</RootNamespace>
+    <BaseOutputPath>\bin</BaseOutputPath>
+    <DelaySign>False</DelaySign>
+      <Version>$(CustomVersion)</Version>
+      <Authors>$(CustomAuthors)</Authors>
+      <Product>$(CustomProduct)</Product>
+      <Copyright>$(CustomCopyright)</Copyright>
+      <PackageIcon>PackageIcon32x32.png</PackageIcon>
+      <PackageIconUrl />
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <OutputPath>..\bin\Debug</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <OutputPath>..\bin\Release</OutputPath>
+    <DefineConstants />
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Storage\Xml\DataSchema.xsd" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Storage\Xml\Schemas\DataSchema.xsd" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\PackageIcon32x32.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
+
+</Project>

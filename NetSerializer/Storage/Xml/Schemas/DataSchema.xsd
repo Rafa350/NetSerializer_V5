@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+    
+    <xs:element name="document">        
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element ref="data"/>
+            </xs:sequence>
+            <xs:attribute name="version" use="required" type="xs:integer"/>
+            <xs:attribute name="encodeStrings" use="optional" type="xs:boolean" default="false"/>
+            <xs:attribute name="useNames" use="optional" type="xs:boolean" default="false"/>
+            <xs:attribute name="useTypes" use="optional" type="xs:boolean" default="false"/>
+            <xs:attribute name="culture" use="optional" type="xs:string"/>
+        </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="data">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element ref="object"/>
+            </xs:sequence>
+            <xs:attribute name="version" use="required" type="xs:integer"/>
+        </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="array">
+        <xs:complexType>
+            <xs:choice minOccurs="0" maxOccurs="unbounded">
+                <xs:element ref="object"/>
+                <xs:element ref="reference"/>
+                <xs:element ref="array"/>
+                <xs:element ref="null"/>
+                <xs:element ref="value"/>
+                <xs:element ref="struct"/>
+            </xs:choice>
+            <xs:attribute name="name" use="optional" type="xs:string"/>
+            <xs:attribute name="count" use="optional" type="xs:integer" default="0"/>
+            <xs:attribute name="bound" use="required" type="xs:string"/>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="struct">
+        <xs:complexType>
+            <xs:choice minOccurs="0" maxOccurs="unbounded">
+                <xs:element ref="object"/>
+                <xs:element ref="reference"/>
+                <xs:element ref="array"/>
+                <xs:element ref="null"/>
+                <xs:element ref="value"/>
+                <xs:element ref="struct"/>
+            </xs:choice>
+            <xs:attribute name="name" use="optional" type="xs:string"/>
+            <xs:attribute name="type" use="optional" type="xs:string"/>
+        </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="object">
+        <xs:complexType>
+            <xs:choice minOccurs="0" maxOccurs="unbounded">
+                <xs:element ref="object"/>
+                <xs:element ref="reference"/>
+                <xs:element ref="array"/>
+                <xs:element ref="null"/>
+                <xs:element ref="value"/>
+                <xs:element ref="struct"/>
+            </xs:choice>
+            <xs:attribute name="id" use="required" type="xs:integer"/>
+            <xs:attribute name="name" use="optional" type="xs:string"/>
+            <xs:attribute name="type" use="required" type="xs:string"/>
+        </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="reference">
+        <xs:complexType>
+            <xs:attribute name="id" use="required" type="xs:integer"/>
+            <xs:attribute name="name" use="optional" type="xs:string"/>
+        </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="null">
+        <xs:complexType>
+            <xs:attribute name="name" use="optional" type="xs:string"/>
+            <xs:attribute name="type" use="optional" type="xs:string"/>
+        </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="value">
+        <xs:complexType mixed="true">
+            <xs:attribute name="name" use="optional" type="xs:string"/>
+            <xs:attribute name="type" use="optional" type="xs:string"/>
+        </xs:complexType>
+    </xs:element>
+    
+</xs:schema>
