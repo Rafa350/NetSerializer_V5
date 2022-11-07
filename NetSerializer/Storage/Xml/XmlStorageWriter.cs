@@ -13,7 +13,7 @@ namespace NetSerializer.V5.Storage.Xml {
     /// 
     public sealed class XmlStorageWriter: StorageWriter {
 
-        private const int _serializerVersion = 400;
+        private const int _serializerVersion = 500;
         private readonly XmlStorageWriterSettings _settings;
         private readonly Stream _stream;
         private XmlWriter _writer;
@@ -57,6 +57,7 @@ namespace NetSerializer.V5.Storage.Xml {
             _writer.WriteAttribute("encodeStrings", _settings.EncodedStrings);
             _writer.WriteAttribute("useNames", _settings.UseNames);
             _writer.WriteAttribute("useTypes", _settings.UseTypes);
+            _writer.WriteAttribute("useMeta", _settings.UseMeta);
             _writer.WriteStartElement("data");
             _writer.WriteAttribute("version", version);
         }

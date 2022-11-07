@@ -9,6 +9,7 @@ namespace NetSerializer.V5.Storage.Xml {
         public Encoding Encoding { get; set; }
         public bool UseNames { get; set; }
         public bool UseTypes { get; set; }
+        public bool UseMeta { get; set; }
         public int Indentation { get; set; }
         public bool EncodedStrings { get; set; }
 
@@ -16,6 +17,7 @@ namespace NetSerializer.V5.Storage.Xml {
 
             UseNames = true;
             UseTypes = false;
+            UseMeta = false;
             Culture = CultureInfo.InvariantCulture;
             Encoding = Encoding.UTF8;
             Indentation = 4;

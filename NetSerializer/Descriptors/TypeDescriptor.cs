@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Threading.Tasks;
+using NetSerializer.V5.Attributes;
 
 namespace NetSerializer.V5.Descriptors {
 
@@ -30,6 +32,17 @@ namespace NetSerializer.V5.Descriptors {
                 //
                 if (propertyInfo.GetIndexParameters().Length > 0)
                     continue;
+
+                // Comprova les opcions
+                //
+                var attr = propertyInfo.GetCustomAttribute<NetSerializerOptionsAttribute>();
+                if (attr != null) {
+
+                    // Si es una propietat excluida, la descarta
+                    //
+                    if (attr.Exclude)
+                        continue;
+                }
 
                 _propertyDescriptors.Add(new PropertyDescriptor(propertyInfo));
             }

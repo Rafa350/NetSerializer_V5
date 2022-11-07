@@ -1,4 +1,5 @@
 ﻿using NetSerializer.V5;
+using NetSerializer.V5.Attributes;
 using NetSerializer.V5.Storage;
 using NetSerializer.V5.Storage.Xml;
 
@@ -19,14 +20,21 @@ namespace LabelTest {
             }
         }
 
+        private class TestClass {
+
+            public int a { get;set; }
+            //[NetSerializerOptions(Exclude = true)]
+            public int b { get; set; }
+        }
+
         static void Main(string[] args) {
 
-            var obj1 = new TestStruct() { a = 10, b = 20 };
+            var obj1 = new TestClass() { a = 10, b = 20 };
 
-            var obj2 = new List<TestStruct>() {
-                new TestStruct() { a = 10, b = 20 },
-                new TestStruct() { a = 11, b = 21 },
-                new TestStruct() { a = 12, b = 22 }
+            var obj2 = new List<TestClass>() {
+                new TestClass() { a = 10, b = 20 },
+                new TestClass() { a = 11, b = 21 },
+                new TestClass() { a = 12, b = 22 }
             };
             XmlSerialize(@"c:\temp\ns_output.xml", obj1);
         }

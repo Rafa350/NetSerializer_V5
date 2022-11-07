@@ -26,6 +26,7 @@ namespace NetSerializer.V5.Storage.Xml {
         private int _dataVersion = 0;
         private bool _useNames = false;
         private bool _useTypes = false;
+        private bool _useMeta = false;
         private bool _encodedStrings = false;
 
         /// <summary>
@@ -92,6 +93,8 @@ namespace NetSerializer.V5.Storage.Xml {
                     _useNames = Convert.ToBoolean(value);
                 if (attributes.TryGetValue("useTypes", out value))
                     _useTypes = Convert.ToBoolean(value);
+                if (attributes.TryGetValue("useMeta", out value))
+                    _useMeta = Convert.ToBoolean(value);
                 if (attributes.TryGetValue("encodeStrings", out value))
                     _encodedStrings = Convert.ToBoolean(value);
             }
@@ -311,7 +314,7 @@ namespace NetSerializer.V5.Storage.Xml {
                 // Tipus 'string'
                 //
                 else if (type == typeof(string)) {
-                    if (_settings.EncodedStrings) {
+                    if (_encodedStrings) {
                         byte[] bytes = Convert.FromBase64String(value);
                         return Encoding.UTF8.GetString(bytes, 0, bytes.Length);
                     }

@@ -8,7 +8,6 @@ namespace NetSerializer.V5.Storage.Xml {
         public bool CheckNames;
         public bool CheckTypes;
         public bool UseSchemaValidation;
-        public bool EncodedStrings;
         public XmlReaderPreprocessor Preprocesor;
 
         public XmlStorageReaderSettings() {
@@ -16,7 +15,6 @@ namespace NetSerializer.V5.Storage.Xml {
             Culture = CultureInfo.InvariantCulture;
             CheckNames = true;
             CheckTypes = false;
-            EncodedStrings = true;
             UseSchemaValidation = true;
             Preprocesor = null;
         }

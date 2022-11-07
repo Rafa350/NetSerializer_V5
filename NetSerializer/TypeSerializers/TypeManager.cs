@@ -52,7 +52,7 @@ namespace NetSerializer.V5.TypeSerializers {
         }
 
         /// <summary>
-        /// Registra els serialitzadors marcats amb l'atribut 'NetSerializer'
+        /// Registra els serialitzadors del objectes marcats amb l'atribut 'NetSerializer'
         /// </summary>
         /// 
         private void AddCustomSerializers() {

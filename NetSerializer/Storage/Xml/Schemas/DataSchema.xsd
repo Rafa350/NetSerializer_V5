@@ -4,14 +4,19 @@
     <xs:element name="document">        
         <xs:complexType>
             <xs:sequence>
-                <xs:element ref="data"/>
+                <xs:element ref="meta" minOccurs="0" maxOccurs="1"/>
+                <xs:element ref="data" minOccurs="1" maxOccurs="1"/>
             </xs:sequence>
             <xs:attribute name="version" use="required" type="xs:integer"/>
             <xs:attribute name="encodeStrings" use="optional" type="xs:boolean" default="false"/>
             <xs:attribute name="useNames" use="optional" type="xs:boolean" default="false"/>
             <xs:attribute name="useTypes" use="optional" type="xs:boolean" default="false"/>
+            <xs:attribute name="useMeta" use="optional" type="xs:boolean" default="false"/>
             <xs:attribute name="culture" use="optional" type="xs:string"/>
         </xs:complexType>
+    </xs:element>
+
+    <xs:element name="meta">
     </xs:element>
     
     <xs:element name="data">

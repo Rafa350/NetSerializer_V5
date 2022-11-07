@@ -14,11 +14,11 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Rafael Serrano")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Release")]
 [assembly: System.Reflection.AssemblyCopyrightAttribute("(c) 2014..2022 Rafael Serrano [rsr.openware@gmail.com]")]
-[assembly: System.Reflection.AssemblyFileVersionAttribute("5.0.6.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("5.0.6")]
+[assembly: System.Reflection.AssemblyFileVersionAttribute("5.0.11.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("5.0.11")]
 [assembly: System.Reflection.AssemblyProductAttribute("NetSerializer")]
 [assembly: System.Reflection.AssemblyTitleAttribute("NetSerializer")]
-[assembly: System.Reflection.AssemblyVersionAttribute("5.0.6.0")]
+[assembly: System.Reflection.AssemblyVersionAttribute("5.0.11.0")]
 
 // Generado por la clase WriteCodeFragment de MSBuild.
 

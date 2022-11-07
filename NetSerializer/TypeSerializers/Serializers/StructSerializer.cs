@@ -70,7 +70,6 @@ namespace NetSerializer.V5.TypeSerializers.Serializers {
             reader.ReadStructStart(name, type);
             obj = Activator.CreateInstance(type);
             DeserializeStruct(reader, obj);
-
             reader.ReadStructEnd();
         }
 
@@ -98,14 +97,8 @@ namespace NetSerializer.V5.TypeSerializers.Serializers {
         /// 
         protected virtual void SerializeProperty(StorageWriter writer, object obj, PropertyDescriptor propertyDescriptor) {
 
-            var serializer = GetSerializer(
-                propertyDescriptor.PropertyType);
-
-            serializer.Serialize(
-                writer,
-                propertyDescriptor.Name,
-                propertyDescriptor.PropertyType,
-                propertyDescriptor.GetValue(obj));
+            var serializer = GetSerializer(propertyDescriptor.PropertyType);
+            serializer.Serialize(writer, propertyDescriptor.Name, propertyDescriptor.PropertyType, propertyDescriptor.GetValue(obj));
         }
 
         /// <summary>
@@ -132,15 +125,8 @@ namespace NetSerializer.V5.TypeSerializers.Serializers {
         /// 
         protected virtual void DeserializeProperty(StorageReader reader, object obj, PropertyDescriptor propertyDescriptor) {
 
-            var serializer = GetSerializer(
-                propertyDescriptor.PropertyType);
-
-            serializer.Deserialize(
-            reader,
-                propertyDescriptor.Name,
-                propertyDescriptor.PropertyType,
-                out object value);
-
+            var serializer = GetSerializer(propertyDescriptor.PropertyType);
+            serializer.Deserialize(reader, propertyDescriptor.Name, propertyDescriptor.PropertyType, out object value);
             propertyDescriptor.SetValue(obj, value);
         }
     }
