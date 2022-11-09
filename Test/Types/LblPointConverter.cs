@@ -10,10 +10,8 @@ namespace Test.Types {
         public LblPointConverter() {
         }
 
-        public bool CanConvert(object obj) {
-
-            return obj is LblPoint;
-        }
+        public bool CanConvert(Type type) =>
+            type == typeof(LblPoint);
 
         public object ConvertFromString(string str) {
 

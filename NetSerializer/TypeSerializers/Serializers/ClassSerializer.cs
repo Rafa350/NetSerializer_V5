@@ -12,12 +12,10 @@ namespace NetSerializer.V5.TypeSerializers.Serializers {
     public class ClassSerializer: TypeSerializer {
 
         private static readonly List<object> _objList = new List<object>();
-        private readonly List<string> _exclusions = new List<string>();
 
         /// <inheritdoc/>
         /// 
-        public ClassSerializer(ITypeSerializerProvider typeSerializerProvider) :
-            base(typeSerializerProvider) {
+        public ClassSerializer() {
 
         }
 
@@ -109,8 +107,7 @@ namespace NetSerializer.V5.TypeSerializers.Serializers {
 
                 case ReadObjectResultType.Object: {
 
-                        var typeNameConverter = new TypeNameConverter();
-                        Type objectType = typeNameConverter.ToType(result.TypeName);
+                        Type objectType = result.ObjectType;
 
                         if (!type.IsAssignableFrom(objectType))
                             throw new InvalidOperationException(
@@ -166,7 +163,7 @@ namespace NetSerializer.V5.TypeSerializers.Serializers {
         protected virtual void SerializeProperty(StorageWriter writer, object obj, PropertyDescriptor propertyDescriptor) {
 
             if (propertyDescriptor.CanRead) {
-                var serializer = GetSerializer(propertyDescriptor.PropertyType);
+                var serializer = TypeSerializerProvider.Instance.GetSerializer(propertyDescriptor.PropertyType);
                 serializer.Serialize(writer, propertyDescriptor.Name, propertyDescriptor.PropertyType, propertyDescriptor.GetValue(obj));
             }
         }
@@ -196,7 +193,7 @@ namespace NetSerializer.V5.TypeSerializers.Serializers {
         protected virtual void DeserializeProperty(StorageReader reader, object obj, PropertyDescriptor propertyDescriptor) {
 
             if (propertyDescriptor.CanWrite) {
-                var serializer = GetSerializer(propertyDescriptor.PropertyType);
+                var serializer = TypeSerializerProvider.Instance.GetSerializer(propertyDescriptor.PropertyType);
                 serializer.Deserialize(reader, propertyDescriptor.Name, propertyDescriptor.PropertyType, out object value);
                 propertyDescriptor.SetValue(obj, value);
             }

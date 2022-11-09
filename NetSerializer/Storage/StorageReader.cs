@@ -106,52 +106,35 @@ namespace NetSerializer.V5.Storage {
     public sealed class ReadObjectResult {
 
         private readonly ReadObjectResultType _resultType;
-        private readonly string _typeName;
+        private readonly Type _objectType;
         private readonly int _objectId;
 
         /// <summary>
-        /// Constructor privat.
+        /// El tipus de resultat.
         /// </summary>
-        /// <param name="resultType">Tipus de resultat.</param>
-        /// <param name="typeName">El nom del tipus</param>
-        /// <param name="objectId">El identificador del objecte.</param>
         /// 
-        private ReadObjectResult(ReadObjectResultType resultType, string typeName, int objectId) {
-
-            _resultType = resultType;
-            _typeName = typeName;
-            _objectId = objectId;
+        public ReadObjectResultType ResultType {
+            get => _resultType;
+            init => _resultType = value;
         }
 
-        public static ReadObjectResult Null() =>
-            new(ReadObjectResultType.Null, null, -1);
-
-        public static ReadObjectResult Object(string typeName, int objectId) =>
-            new(ReadObjectResultType.Object, typeName, objectId);
-
-        public static ReadObjectResult Reference(int objectId) =>
-            new(ReadObjectResultType.Reference, null, objectId);
-
         /// <summary>
-        /// Obte el tipus de resultat.
+        /// El tipus del objecte.
         /// </summary>
         /// 
-        public ReadObjectResultType ResultType =>
-            _resultType;
+        public Type ObjectType {
+            get => _objectType;
+            init => _objectType= value;
+        }
 
         /// <summary>
-        /// Obte el nom del tipus
+        /// El identificador del objecte
         /// </summary>
         /// 
-        public string TypeName =>
-            _typeName;
-
-        /// <summary>
-        /// Obte el identificador del objecte
-        /// </summary>
-        /// 
-        public int ObjectId =>
-            _objectId;
+        public int ObjectId {
+            get => _objectId;
+            init => _objectId = value;
+        }
     }
 
     /// <summary>
@@ -174,44 +157,30 @@ namespace NetSerializer.V5.Storage {
         private readonly int[] _bounds;
 
         /// <summary>
-        /// Constructor privat.
-        /// </summary>
-        /// <param name="resultType">Tipus de resultat.</param>
-        /// <param name="count">Numero d'elements.</param>
-        /// <param name="bounds">Tamany dels index.</param>
-        /// 
-        private ReadArrayResult(ReadArrayResultType resultType, int count, int[] bounds) {
-
-            _resultType = resultType;
-            _count = count;
-            _bounds = bounds;
-        }
-
-        public static ReadArrayResult Null() =>
-            new(ReadArrayResultType.Null, 0, null);
-
-        public static ReadArrayResult Array(int count, int[] bounds) =>
-            new(ReadArrayResultType.Array, count, bounds);
-
-        /// <summary>
         /// Obte el tipus de resultat.
         /// </summary>
         /// 
-        public ReadArrayResultType ResultType =>
-            _resultType;
+        public ReadArrayResultType ResultType {
+            get => _resultType;
+            init => _resultType = value;
+        }
 
         /// <summary>
         /// Numero d'elements del array.
         /// </summary>
         /// 
-        public int Count =>
-            _count;
+        public int Count {
+            get => _count;
+            init => _count = value;
+        }
 
         /// <summary>
         /// Tamany dels index del array.
         /// </summary>
         /// 
-        public int[] Bounds =>
-            _bounds;
+        public int[] Bounds {
+            get => _bounds;
+            init => _bounds = value;
+        }
     }
 }

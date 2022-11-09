@@ -6,7 +6,6 @@ using NetSerializer.V5.TypeSerializers.Serializers;
 
 namespace NetSerializer.V5.TypeSerializers {
 
-
     /// <summary>
     /// Gestiona els serialitzadors.
     /// </summary>
@@ -15,8 +14,7 @@ namespace NetSerializer.V5.TypeSerializers {
 
         private static TypeSerializerProvider _instance;
 
-        private readonly List<ITypeSerializer> _serializerList = new List<ITypeSerializer>();
-
+        private readonly List<ITypeSerializer> _serializerSet = new List<ITypeSerializer>();
         private readonly Dictionary<Type, ITypeSerializer> _serializerCache = new Dictionary<Type, ITypeSerializer>();
 
         /// <summary>
@@ -24,16 +22,13 @@ namespace NetSerializer.V5.TypeSerializers {
         /// </summary>
         /// 
         private TypeSerializerProvider() {
-
-            AddCustomSerializers();
-            AddDefaultSerializers();
         }
 
         /// <inheritdoc/>
         /// 
         public void Initialize() {
 
-            foreach (var serializer in _serializerList)
+            foreach (var serializer in _serializerSet)
                 serializer.Initialize();
         }
 
@@ -45,10 +40,10 @@ namespace NetSerializer.V5.TypeSerializers {
 
             // Es important l'ordre en que es registren els serialitzadors
             //
-            _serializerList.Add(new ValueSerializer(this));    // Sempre el primer
-            _serializerList.Add(new ArraySerializer(this));
-            _serializerList.Add(new StructSerializer(this));
-            _serializerList.Add(new ClassSerializer(this));    // Sempre l'ultim
+            _serializerSet.Add(new ValueSerializer());    // Sempre el primer
+            _serializerSet.Add(new ArraySerializer());
+            _serializerSet.Add(new StructSerializer());
+            _serializerSet.Add(new ClassSerializer());    // Sempre l'ultim
         }
 
         /// <summary>
@@ -65,8 +60,8 @@ namespace NetSerializer.V5.TypeSerializers {
                     if (attr != null) {
                         var serializerType = attr.SerializerType;
                         if ((serializerType != null) && typeof(ITypeSerializer).IsAssignableFrom(serializerType)) {
-                            ITypeSerializer serializer = (ITypeSerializer)Activator.CreateInstance(serializerType, this);
-                            _serializerList.Add(serializer);
+                            ITypeSerializer serializer = (ITypeSerializer)Activator.CreateInstance(serializerType);
+                            _serializerSet.Add(serializer);
                         }
                     }
                 }
@@ -76,19 +71,19 @@ namespace NetSerializer.V5.TypeSerializers {
         /// <summary>
         /// Registra un serialitzador de tipus.
         /// </summary>
-        /// <param name="serializer">El serializador a registrar. Si es nulo dispara una excepcion.</param>
+        /// <param name="serializer">El serializador a registrar.</param>
         /// 
         public void AddSerializer(ITypeSerializer serializer) {
 
             if (serializer == null)
                 throw new ArgumentNullException(nameof(serializer));
 
-            if (_serializerList.Contains(serializer))
+            if (_serializerSet.Contains(serializer))
                 throw new InvalidOperationException("Ya se registró este serializador.");
 
             // S'insereixen abans dels serialitzadors estandard
             //
-            _serializerList.Insert(0, serializer);
+            _serializerSet.Insert(0, serializer);
         }
 
         /// <summary>
@@ -104,7 +99,7 @@ namespace NetSerializer.V5.TypeSerializers {
 
             if (!_serializerCache.TryGetValue(type, out ITypeSerializer serializer)) {
 
-                serializer = _serializerList.Find(item => item.CanSerialize(type));
+                serializer = _serializerSet.Find(item => item.CanSerialize(type));
                 if (serializer == null)
                     throw new InvalidOperationException(
                         String.Format(
@@ -123,8 +118,11 @@ namespace NetSerializer.V5.TypeSerializers {
         /// 
         public static TypeSerializerProvider Instance {
             get {
-                if (_instance == null)
+                if (_instance == null) {
                     _instance = new TypeSerializerProvider();
+                    _instance.AddCustomSerializers();
+                    _instance.AddDefaultSerializers();
+                }
                 return _instance;
             }
         }

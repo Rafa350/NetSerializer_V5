@@ -11,8 +11,7 @@ namespace NetSerializer.V5.TypeSerializers.Serializers {
 
         /// <inheritdoc/>
         /// 
-        public ValueSerializer(ITypeSerializerProvider typeSerializerProvider) :
-            base(typeSerializerProvider) {
+        public ValueSerializer() {
 
         }
 

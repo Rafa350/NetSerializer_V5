@@ -1,14 +1,16 @@
-﻿namespace NetSerializer.V5.Storage.Xml.ValueConverters {
+﻿using System;
+
+namespace NetSerializer.V5.Storage.Xml.ValueConverters {
 
     public interface IXmlValueConverter {
 
         /// <summary>
-        /// Comprova si el objecte es pot convertir.
+        /// Comprova si un tipus es pot convertir.
         /// </summary>
-        /// <param name="obj">L'objecte.</param>
+        /// <param name="type">El tipus.</param>
         /// <returns>True en cas afirmatiu.</returns>
         /// 
-        bool CanConvert(object obj);
+        bool CanConvert(Type type);
 
         /// <summary>
         /// Converteix l'objecte a string.

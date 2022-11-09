@@ -1,14 +1,12 @@
 ﻿using System;
 using System.Text;
 
-namespace NetSerializer.V5.Storage.Xml.ValueConverters {
+namespace NetSerializer.V5.Storage.Xml.ValueConverters.Converters {
 
     internal class XmlStringValueConverter: IXmlValueConverter {
 
-        public bool CanConvert(object obj) {
-
-            return obj is string;
-        }
+        public bool CanConvert(Type type) =>
+            type == typeof(string);
 
         public object ConvertFromString(string str) {
 

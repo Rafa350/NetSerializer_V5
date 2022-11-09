@@ -12,9 +12,7 @@ namespace NetSerializer.V5.TypeSerializers.Serializers {
 
         /// <inheritdoc/>
         /// 
-        public ArraySerializer(ITypeSerializerProvider typeSerializerProvider) :
-            base(typeSerializerProvider) {
-
+        public ArraySerializer() {
         }
 
         /// <inheritdoc/>
@@ -55,7 +53,7 @@ namespace NetSerializer.V5.TypeSerializers.Serializers {
 
                     var value = array.GetValue(index.Current);
                     var valueType = type.GetElementType();
-                    var serializer = GetSerializer(valueType);
+                    var serializer = TypeSerializerProvider.Instance.GetSerializer(valueType);
                     var elementName = String.Format("{0}[{1}]", name, index);
                     serializer.Serialize(writer, elementName, valueType, value);
 
@@ -89,7 +87,7 @@ namespace NetSerializer.V5.TypeSerializers.Serializers {
                 var index = new MultidimensionalIndex(array);
                 for (int i = 0; i < result.Count; i++) {
 
-                    var serializer = GetSerializer(type.GetElementType());
+                    var serializer = TypeSerializerProvider.Instance.GetSerializer(type.GetElementType());
                     var elementName = String.Format("{0}[{1}]", name, index);
                     serializer.Deserialize(reader, elementName, type.GetElementType(), out object elementValue);
                     array.SetValue(elementValue, index.Current);

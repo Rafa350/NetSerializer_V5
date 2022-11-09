@@ -8,8 +8,7 @@ namespace NetSerializer.V5.TypeSerializers.Serializers {
 
         /// <inheritdoc/>
         /// 
-        public StructSerializer(ITypeSerializerProvider typeSerializerProvider) :
-            base(typeSerializerProvider) {
+        public StructSerializer() {
 
         }
 
@@ -110,7 +109,7 @@ namespace NetSerializer.V5.TypeSerializers.Serializers {
         /// 
         protected virtual void SerializeProperty(StorageWriter writer, object obj, PropertyDescriptor propertyDescriptor) {
 
-            var serializer = GetSerializer(propertyDescriptor.PropertyType);
+            var serializer = TypeSerializerProvider.Instance.GetSerializer(propertyDescriptor.PropertyType);
             serializer.Serialize(writer, propertyDescriptor.Name, propertyDescriptor.PropertyType, propertyDescriptor.GetValue(obj));
         }
 
@@ -138,7 +137,7 @@ namespace NetSerializer.V5.TypeSerializers.Serializers {
         /// 
         protected virtual void DeserializeProperty(StorageReader reader, object obj, PropertyDescriptor propertyDescriptor) {
 
-            var serializer = GetSerializer(propertyDescriptor.PropertyType);
+            var serializer = TypeSerializerProvider.Instance.GetSerializer(propertyDescriptor.PropertyType);
             serializer.Deserialize(reader, propertyDescriptor.Name, propertyDescriptor.PropertyType, out object value);
             propertyDescriptor.SetValue(obj, value);
         }

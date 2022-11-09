@@ -11,7 +11,7 @@ namespace NetSerializer.V5 {
     public sealed class Serializer {
 
         private readonly StorageWriter _writer;
-        private readonly TypeSerializerProvider _typeManager = TypeSerializerProvider.Instance;
+        private readonly TypeSerializerProvider _typeSerializerProvider = TypeSerializerProvider.Instance;
         private readonly int _version;
 
         /// <summary>
@@ -46,7 +46,7 @@ namespace NetSerializer.V5 {
             if (serializer == null)
                 throw new ArgumentNullException(nameof(serializer));
 
-            _typeManager.AddSerializer(serializer);
+            _typeSerializerProvider.AddSerializer(serializer);
         }
 
         /// <summary>
@@ -58,9 +58,9 @@ namespace NetSerializer.V5 {
         public void Serialize(object obj, string name) {
 
             _writer.Initialize(_version);
-            _typeManager.Initialize();
+            _typeSerializerProvider.Initialize();
 
-            var serializer = _typeManager.GetSerializer(obj.GetType());
+            var serializer = _typeSerializerProvider.GetSerializer(obj.GetType());
             serializer.Serialize(_writer, name, obj.GetType(), obj);
         }
     }

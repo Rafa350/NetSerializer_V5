@@ -19,7 +19,6 @@ namespace NetSerializer.V5.Storage.Xml {
         private readonly XmlStorageWriterSettings _settings;
         private readonly Stream _stream;
         private XmlWriter _writer;
-        private readonly ITypeNameConverter _typeNameConverter = new TypeNameConverter();
 
         /// <summary>
         /// Constructor de la clase.
@@ -57,7 +56,6 @@ namespace NetSerializer.V5.Storage.Xml {
             _writer.WriteAttribute("version", _serializerVersion);
             _writer.WriteAttribute("encodeStrings", _settings.EncodedStrings);
             _writer.WriteAttribute("useNames", _settings.UseNames);
-            _writer.WriteAttribute("useTypes", _settings.UseTypes);
             _writer.WriteAttribute("useMeta", _settings.UseMeta);
             _writer.WriteStartElement("data");
             _writer.WriteAttribute("version", version);
@@ -93,8 +91,6 @@ namespace NetSerializer.V5.Storage.Xml {
             _writer.WriteStartElement("value");
             if (_settings.UseNames)
                 _writer.WriteAttribute("name", name);
-            if (_settings.UseTypes)
-                _writer.WriteAttribute("type", TypeToString(type));
         }
 
         /// <inheritdoc/>
@@ -157,7 +153,7 @@ namespace NetSerializer.V5.Storage.Xml {
             _writer.WriteStartElement("object");
             if (_settings.UseNames)
                 _writer.WriteAttribute("name", name);
-            _writer.WriteAttribute("type", TypeToString(obj.GetType()));
+            _writer.WriteAttribute("type", obj.GetType().AssemblyQualifiedName);
             _writer.WriteAttribute("id", id);
         }
 
@@ -187,8 +183,6 @@ namespace NetSerializer.V5.Storage.Xml {
             _writer.WriteStartElement("struct");
             if (_settings.UseNames)
                 _writer.WriteAttribute("name", name);
-            if (_settings.UseTypes)
-                _writer.WriteAttribute("type", TypeToString(type));
         }
 
         /// <inheritdoc/>
@@ -233,17 +227,6 @@ namespace NetSerializer.V5.Storage.Xml {
         public override void WriteArrayEnd() {
 
             _writer.WriteEndElement();
-        }
-
-        /// <summary>
-        /// Converteix un tipus a string.
-        /// </summary>
-        /// <param name="type">El tipus a convertir.</param>
-        /// <returns>El resultat de la converssio.</returns>
-        /// 
-        private string TypeToString(Type type) {
-
-            return _typeNameConverter.ToString(type);
         }
 
         /// <summary>

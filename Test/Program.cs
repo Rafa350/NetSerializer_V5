@@ -5,11 +5,19 @@ using Test.Types;
 namespace Test {
 
 
+    public struct X {
+        public int A { get; set; }
+        public int B { get; set; }
+        public int C { get; set; }
+    }
+
     public class TestClass {
 
         private LblPoint _point;
+        private DateTime _date = DateTime.Now;
         private string _stringValue = "abcd";
         private char _charValue = 'G';
+        private X _x;
 
         public TestClass() {
         }
@@ -27,6 +35,16 @@ namespace Test {
         public LblPoint Point {
             get => _point;
             set => _point = value;
+        }
+
+        public DateTime Date {
+            get => _date;
+            set => _date = value;
+        }
+
+        public X X {
+            get => _x;
+            set => _x = value;
         }
     }
 

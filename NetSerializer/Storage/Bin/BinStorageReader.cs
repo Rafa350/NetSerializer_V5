@@ -15,7 +15,6 @@ namespace NetSerializer.V5.Storage.Bin {
 
         private readonly Stream _stream;
         private readonly BinStorageReaderSettings _settings;
-        private readonly ITypeNameConverter _typeNameConverter = new TypeNameConverter();
 
         private BinaryReader _reader;
         private int _serializerVersion;
@@ -105,10 +104,10 @@ namespace NetSerializer.V5.Storage.Bin {
         /// 
         public override ReadObjectResult ReadObjectStart(string name) {
 
-            DataPrefix prefix = (DataPrefix)_reader.ReadByte();
+/*            DataPrefix prefix = (DataPrefix)_reader.ReadByte();
 
             if (prefix == DataPrefix.StartObjectId)
-                return ReadObjectResult.Object(
+                return new ReadObjectResultObject() {
                     _reader.ReadString(),
                     _reader.ReadInt32());
 
@@ -119,7 +118,7 @@ namespace NetSerializer.V5.Storage.Bin {
             else if (prefix == DataPrefix.NullId)
                 return ReadObjectResult.Null();
 
-            else
+            else*/
                 throw new InvalidDataException();
         }
 
@@ -154,11 +153,17 @@ namespace NetSerializer.V5.Storage.Bin {
                     bound[b] = _reader.ReadInt32();
                 var count = _reader.ReadInt32();
 
-                return ReadArrayResult.Array(count, bound);
+                return new ReadArrayResult() {
+                    ResultType = ReadArrayResultType.Array,
+                    Count = count,
+                    Bounds = bound
+                };
             }
 
             else if (prefix == DataPrefix.NullId)
-                return ReadArrayResult.Null();
+                return new ReadArrayResult() {
+                    ResultType = ReadArrayResultType.Null
+                };
 
             else
                 throw new InvalidDataException();

@@ -19,21 +19,19 @@ namespace NetSerializer.V5.Storage.Xml {
 
         private const string _schemaResourceName = "NetSerializer.V5.Storage.Xml.Schemas.DataSchema.xsd";
 
-        private readonly ITypeNameConverter _typeNameConverter = new TypeNameConverter();
         private readonly Stream _stream;
         private readonly XmlStorageReaderSettings _settings;
         private XmlReader _reader;
         private int _serializerVersion = 0;
         private int _dataVersion = 0;
         private bool _useNames = false;
-        private bool _useTypes = false;
         private bool _useMeta = false;
         private bool _encodedStrings = false;
 
         /// <summary>
         /// Contructor del objecte.
         /// </summary>
-        /// <param name="stream">Stream d'entrada. Si es null es dispara una excepcio.</param>
+        /// <param name="stream">Stream d'entrada.</param>
         /// <param name="settings">Parametres de configuracio. Si es null, s'utilitza la configuracio per defecte.</param>
         /// 
         public XmlStorageReader(Stream stream, XmlStorageReaderSettings settings) {
@@ -89,15 +87,13 @@ namespace NetSerializer.V5.Storage.Xml {
                 var attributes = _reader.GetAttributes();
                 string value;
                 if (attributes.TryGetValue("version", out value))
-                    _serializerVersion = Convert.ToInt32(value);
+                    _serializerVersion = XmlConvert.ToInt32(value);
                 if (attributes.TryGetValue("useNames", out value))
-                    _useNames = Convert.ToBoolean(value);
-                if (attributes.TryGetValue("useTypes", out value))
-                    _useTypes = Convert.ToBoolean(value);
+                    _useNames = XmlConvert.ToBoolean(value);
                 if (attributes.TryGetValue("useMeta", out value))
-                    _useMeta = Convert.ToBoolean(value);
+                    _useMeta = XmlConvert.ToBoolean(value);
                 if (attributes.TryGetValue("encodeStrings", out value))
-                    _encodedStrings = Convert.ToBoolean(value);
+                    _encodedStrings = XmlConvert.ToBoolean(value);
             }
 
             if (_settings.CheckNames && !_useNames)
@@ -109,7 +105,7 @@ namespace NetSerializer.V5.Storage.Xml {
             if (_reader.HasAttributes) {
                 var attributes = _reader.GetAttributes();
                 if (attributes.TryGetValue("version", out string value))
-                    _dataVersion = Convert.ToInt32(value);
+                    _dataVersion = XmlConvert.ToInt32(value);
             }
         }
 
@@ -146,12 +142,6 @@ namespace NetSerializer.V5.Storage.Xml {
                         throw new InvalidOperationException(String.Format("Se esperaba un valor de nombre '{0}'.", name));
                 }
 
-                if (_useTypes && _settings.CheckTypes) {
-                    string typeName = GetAttribute(attributes, "type");
-                    if (type != (typeName == null ? null : TypeFromString(typeName)))
-                        throw new InvalidOperationException(String.Format("Se esperaba un valor de tipo '{0}'.", type));
-                }
-
                 string content = GetContent();
 
                 var provider = XmlValueConverterProvider.Instance;
@@ -170,7 +160,9 @@ namespace NetSerializer.V5.Storage.Xml {
             _reader.Read();
 
             if (_reader.Name == "null")
-                return ReadObjectResult.Null();
+                return new ReadObjectResult() {
+                    ResultType = ReadObjectResultType.Null
+                };
 
             else if (_reader.Name == "object") {
 
@@ -180,9 +172,11 @@ namespace NetSerializer.V5.Storage.Xml {
                     if (name != GetAttribute(attributes, "name"))
                         throw new InvalidOperationException(String.Format("Se esperaba un objeto de nombre '{0}'.", name));
 
-                return ReadObjectResult.Object(
-                    GetAttribute(attributes, "type", true),
-                    Convert.ToInt32(GetAttribute(attributes, "id", true)));
+                return new ReadObjectResult() {
+                    ResultType = ReadObjectResultType.Object,
+                    ObjectType = Type.GetType(GetAttribute(attributes, "type", true)),
+                    ObjectId = XmlConvert.ToInt32(GetAttribute(attributes, "id", true))
+                };
             }
 
             else if (_reader.Name == "reference") {
@@ -193,8 +187,10 @@ namespace NetSerializer.V5.Storage.Xml {
                     if (name != GetAttribute(attributes, "name"))
                         throw new InvalidOperationException(String.Format("Se esperaba un objeto de nombre '{0}'.", name));
 
-                return ReadObjectResult.Reference(
-                    Convert.ToInt32(GetAttribute(attributes, "id", true)));
+                return new ReadObjectResult() {
+                    ResultType = ReadObjectResultType.Reference,
+                    ObjectId = XmlConvert.ToInt32(GetAttribute(attributes, "id", true))
+                };
             }
 
             else
@@ -232,7 +228,9 @@ namespace NetSerializer.V5.Storage.Xml {
             _reader.Read();
 
             if (_reader.Name == "null")
-                return ReadArrayResult.Null();
+                return new ReadArrayResult() {
+                    ResultType = ReadArrayResultType.Null
+                };
 
             else if (_reader.Name == "array") {
 
@@ -246,11 +244,15 @@ namespace NetSerializer.V5.Storage.Xml {
                 string[] boundStr = attributes["bound"].Split(new char[] { ',' });
                 var bound = new int[boundStr.Length];
                 for (int i = 0; i < boundStr.Length; i++)
-                    bound[i] = Convert.ToInt32(boundStr[i]);
+                    bound[i] = XmlConvert.ToInt32(boundStr[i]);
 
-                var count = Convert.ToInt32(GetAttribute(attributes, "count"));
+                var count = XmlConvert.ToInt32(GetAttribute(attributes, "count"));
 
-                return ReadArrayResult.Array(count, bound);
+                return new ReadArrayResult() {
+                    ResultType = ReadArrayResultType.Array,
+                    Count = count,
+                    Bounds = bound
+                };
             }
 
             else
@@ -300,11 +302,6 @@ namespace NetSerializer.V5.Storage.Xml {
             }
 
             return value;
-        }
-
-        private Type TypeFromString(string typeName) {
-
-            return _typeNameConverter.ToType(typeName);
         }
 
         /// <summary>

@@ -10,7 +10,6 @@
             <xs:attribute name="version" use="required" type="xs:integer"/>
             <xs:attribute name="encodeStrings" use="optional" type="xs:boolean" default="false"/>
             <xs:attribute name="useNames" use="optional" type="xs:boolean" default="false"/>
-            <xs:attribute name="useTypes" use="optional" type="xs:boolean" default="false"/>
             <xs:attribute name="useMeta" use="optional" type="xs:boolean" default="false"/>
         </xs:complexType>
     </xs:element>
@@ -54,7 +53,6 @@
                 <xs:element ref="struct"/>
             </xs:choice>
             <xs:attribute name="name" use="optional" type="xs:string"/>
-            <xs:attribute name="type" use="optional" type="xs:string"/>
         </xs:complexType>
     </xs:element>
     
@@ -84,14 +82,12 @@
     <xs:element name="null">
         <xs:complexType>
             <xs:attribute name="name" use="optional" type="xs:string"/>
-            <xs:attribute name="type" use="optional" type="xs:string"/>
         </xs:complexType>
     </xs:element>
     
     <xs:element name="value">
         <xs:complexType mixed="true">
             <xs:attribute name="name" use="optional" type="xs:string"/>
-            <xs:attribute name="type" use="optional" type="xs:string"/>
         </xs:complexType>
     </xs:element>
     
