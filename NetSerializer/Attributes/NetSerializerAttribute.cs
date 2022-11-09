@@ -19,12 +19,12 @@ namespace NetSerializer.V5.Attributes {
 
         public string AliasName {
             get => _aliasName;
-            set => _aliasName = value;
+            init => _aliasName = value;
         }
 
         public Type SerializerType {
             get => _serializerType;
-            set => _serializerType = value;
+            init => _serializerType = value;
         }
     }
 }

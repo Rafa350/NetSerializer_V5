@@ -1,5 +1,4 @@
 ﻿using System;
-
 using NetSerializer.V5.Storage;
 
 namespace NetSerializer.V5.TypeSerializers {

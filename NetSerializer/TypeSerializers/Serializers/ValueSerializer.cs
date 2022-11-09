@@ -1,5 +1,4 @@
 ﻿using System;
-using System.ComponentModel;
 using NetSerializer.V5.Storage;
 
 namespace NetSerializer.V5.TypeSerializers.Serializers {
@@ -29,11 +28,8 @@ namespace NetSerializer.V5.TypeSerializers.Serializers {
             if (type == null)
                 throw new ArgumentNullException(nameof(type));
 
-            return
-                type.IsPrimitive ||
-                type.IsEnum ||
-                type == typeof(string) ||
-                (type.IsValueType && TypeDescriptor.GetConverter(type) != null);
+            return type.IsPrimitive || type.IsEnum || (type == typeof(string)) ||
+                (type == typeof(DateTime)) || (type == typeof(decimal));
         }
 
         /// <summary>
@@ -60,8 +56,11 @@ namespace NetSerializer.V5.TypeSerializers.Serializers {
 
             if (obj == null)
                 writer.WriteNull(name);
-            else
-                writer.WriteValue(name, obj);
+            else {
+                writer.WriteValueStart(name, type);
+                writer.WriteValue(obj);
+                writer.WriteValueEnd();
+            }
         }
 
         /// <summary>

@@ -9,12 +9,36 @@
     public abstract class StorageWriter {
 
         /// <summary>
+        /// Comprova si el tipus te un conversor de valor.
+        /// </summary>
+        /// <param name="type">El tipus a comprovar.</param>
+        /// <returns>True si en cas afirmatiu.</returns>
+        /// 
+        public virtual bool HasValueConverter(Type type) {
+
+            return false;
+        }
+
+        /// <summary>
+        /// Inicia l'escriptura d'un valor.
+        /// </summary>
+        /// <param name="name">El nom del valor</param>
+        /// <param name="type">El tipus del valor</param>
+        /// 
+        public abstract void WriteValueStart(string name, Type type);
+
+        /// <summary>
+        /// Finalitza l'escriptura d'un valor.
+        /// </summary>
+        /// 
+        public abstract void WriteValueEnd();
+
+        /// <summary>
         /// Escriu un valor.
         /// </summary>
-        /// <param name="name">Nom del node.</param>
         /// <param name="value">El valor.</param>
         /// 
-        public abstract void WriteValue(string name, object value);
+        public abstract void WriteValue(object value);
 
         /// <summary>
         /// Escriu un valor null.

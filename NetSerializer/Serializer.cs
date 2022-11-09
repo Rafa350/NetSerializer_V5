@@ -11,7 +11,7 @@ namespace NetSerializer.V5 {
     public sealed class Serializer {
 
         private readonly StorageWriter _writer;
-        private readonly TypeManager _typeManager = TypeManager.Instance;
+        private readonly TypeSerializerProvider _typeManager = TypeSerializerProvider.Instance;
         private readonly int _version;
 
         /// <summary>

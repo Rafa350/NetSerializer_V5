@@ -48,9 +48,17 @@ namespace NetSerializer.V5.TypeSerializers.Serializers {
                 throw new InvalidOperationException(
                     String.Format("No es posible serializar el tipo '{0}'.", type.ToString()));
 
-            writer.WriteStructStart(name, obj);
-            SerializeStruct(writer, obj);
-            writer.WriteStructEnd();
+            if (writer.HasValueConverter(type)) {
+                writer.WriteValueStart(name, type);
+                writer.WriteValue(obj);
+                writer.WriteValueEnd();
+            }
+
+            else {
+                writer.WriteStructStart(name, obj);
+                SerializeStruct(writer, obj);
+                writer.WriteStructEnd();
+            }
         }
 
         /// <inheritdoc/>
@@ -67,10 +75,15 @@ namespace NetSerializer.V5.TypeSerializers.Serializers {
                 throw new InvalidOperationException(
                     String.Format("No es posible deserializar el tipo '{0}'.", type.ToString()));
 
-            reader.ReadStructStart(name, type);
-            obj = Activator.CreateInstance(type);
-            DeserializeStruct(reader, obj);
-            reader.ReadStructEnd();
+            if (reader.HasValueConverter(type))
+                obj = reader.ReadValue(name, type);
+
+            else {
+                reader.ReadStructStart(name, type);
+                obj = Activator.CreateInstance(type);
+                DeserializeStruct(reader, obj);
+                reader.ReadStructEnd();
+            }
         }
 
         /// <summary>

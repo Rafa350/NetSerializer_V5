@@ -12,7 +12,6 @@
             <xs:attribute name="useNames" use="optional" type="xs:boolean" default="false"/>
             <xs:attribute name="useTypes" use="optional" type="xs:boolean" default="false"/>
             <xs:attribute name="useMeta" use="optional" type="xs:boolean" default="false"/>
-            <xs:attribute name="culture" use="optional" type="xs:string"/>
         </xs:complexType>
     </xs:element>
 

@@ -13,6 +13,7 @@
       <Copyright>$(CustomCopyright)</Copyright>
       <PackageIcon>PackageIcon32x32.png</PackageIcon>
       <PackageIconUrl />
+      <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

@@ -11,9 +11,9 @@ namespace NetSerializer.V5.TypeSerializers {
     /// Gestiona els serialitzadors.
     /// </summary>
     /// 
-    public sealed class TypeManager: ITypeSerializerProvider {
+    public sealed class TypeSerializerProvider: ITypeSerializerProvider {
 
-        private static TypeManager _instance;
+        private static TypeSerializerProvider _instance;
 
         private readonly List<ITypeSerializer> _serializerList = new List<ITypeSerializer>();
 
@@ -23,7 +23,7 @@ namespace NetSerializer.V5.TypeSerializers {
         /// Constructor de la clase.
         /// </summary>
         /// 
-        private TypeManager() {
+        private TypeSerializerProvider() {
 
             AddCustomSerializers();
             AddDefaultSerializers();
@@ -121,10 +121,10 @@ namespace NetSerializer.V5.TypeSerializers {
         /// Retorna una instancia unica del objecte.
         /// </summary>
         /// 
-        public static TypeManager Instance {
+        public static TypeSerializerProvider Instance {
             get {
                 if (_instance == null)
-                    _instance = new TypeManager();
+                    _instance = new TypeSerializerProvider();
                 return _instance;
             }
         }

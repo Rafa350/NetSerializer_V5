@@ -7,6 +7,7 @@ using System.Text;
 using System.Xml;
 using System.Xml.Schema;
 using NetSerializer.V5.Storage.Xml.Infrastructure;
+using NetSerializer.V5.Storage.Xml.ValueConverters;
 
 namespace NetSerializer.V5.Storage.Xml {
 
@@ -121,6 +122,14 @@ namespace NetSerializer.V5.Storage.Xml {
 
         /// <inheritdoc/>
         /// 
+        public override bool HasValueConverter(Type type) {
+
+            var provider = XmlValueConverterProvider.Instance;
+            return provider.GetConverter(type) != null;
+        }
+
+        /// <inheritdoc/>
+        /// 
         public override object ReadValue(string name, Type type) {
 
             _reader.Read();
@@ -144,7 +153,13 @@ namespace NetSerializer.V5.Storage.Xml {
                 }
 
                 string content = GetContent();
-                return ValueFromString(type, content);
+
+                var provider = XmlValueConverterProvider.Instance;
+                var converter = provider.GetConverter(type);
+                if (converter != null)
+                    return converter.ConvertFromString(content);
+                else
+                    return ValueFromString(type, content);
             }
         }
 

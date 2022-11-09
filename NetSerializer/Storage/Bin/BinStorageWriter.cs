@@ -32,9 +32,17 @@ namespace NetSerializer.V5.Storage.Bin {
             _stream = stream;
         }
 
+        public override void WriteValueStart(string name, Type type) {
+            throw new NotImplementedException();
+        }
+
+        public override void WriteValueEnd() {
+            throw new NotImplementedException();
+        }
+
         /// <inheritdoc/>
         /// 
-        public override void WriteValue(string name, object value) {
+        public override void WriteValue(object value) {
 
             var type = value.GetType();
 

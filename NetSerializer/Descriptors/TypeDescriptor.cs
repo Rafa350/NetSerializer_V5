@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
-using System.Threading.Tasks;
 using NetSerializer.V5.Attributes;
 
 namespace NetSerializer.V5.Descriptors {

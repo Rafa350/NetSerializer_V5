@@ -1,9 +1,11 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Globalization;
 using System.IO;
 using System.Text;
 using System.Xml;
 using NetSerializer.V5.Storage.Xml.Infrastructure;
+using NetSerializer.V5.Storage.Xml.ValueConverters;
 
 namespace NetSerializer.V5.Storage.Xml {
 
@@ -53,7 +55,6 @@ namespace NetSerializer.V5.Storage.Xml {
             _writer.WriteStartDocument();
             _writer.WriteStartElement("document");
             _writer.WriteAttribute("version", _serializerVersion);
-            _writer.WriteAttribute("culture", _settings.Culture.Name);
             _writer.WriteAttribute("encodeStrings", _settings.EncodedStrings);
             _writer.WriteAttribute("useNames", _settings.UseNames);
             _writer.WriteAttribute("useTypes", _settings.UseTypes);
@@ -76,21 +77,44 @@ namespace NetSerializer.V5.Storage.Xml {
 
         /// <inheritdoc/>
         /// 
-        public override void WriteValue(string name, object value) {
+        public override bool HasValueConverter(Type type) {
+
+            var provider = XmlValueConverterProvider.Instance;
+            return provider.GetConverter(type) != null;
+        }
+
+        /// <inheritdoc/>
+        /// 
+        public override void WriteValueStart(string name, Type type) {
 
             if (_settings.UseNames && String.IsNullOrEmpty(name))
                 throw new ArgumentNullException(nameof(name));
-
-            if (value == null)
-                throw new ArgumentNullException(nameof(value));
 
             _writer.WriteStartElement("value");
             if (_settings.UseNames)
                 _writer.WriteAttribute("name", name);
             if (_settings.UseTypes)
-                _writer.WriteAttribute("type", TypeToString(value.GetType()));
-            _writer.WriteValue(ValueToString(value));
+                _writer.WriteAttribute("type", TypeToString(type));
+        }
+
+        /// <inheritdoc/>
+        /// 
+        public override void WriteValueEnd() {
+
             _writer.WriteEndElement();
+        }
+
+        /// <inheritdoc/>
+        /// 
+        public override void WriteValue(object value) {
+
+            Type type = value.GetType();
+            var provider = XmlValueConverterProvider.Instance;
+            var converter = provider.GetConverter(type);
+            if (converter != null)
+                _writer.WriteValue(converter.ConvertToString(value));
+            else
+                _writer.WriteValue(ValueToString(value));
         }
 
         /// <inheritdoc/>
@@ -263,7 +287,7 @@ namespace NetSerializer.V5.Storage.Xml {
                 else {
                     TypeConverter converter = TypeDescriptor.GetConverter(type);
                     if ((converter != null) && converter.CanConvertTo(typeof(string)))
-                        return converter.ConvertToString(null, _settings.Culture, value);
+                        return converter.ConvertToString(null, CultureInfo.InvariantCulture, value);
                     else
                         return value.ToString();
                 }

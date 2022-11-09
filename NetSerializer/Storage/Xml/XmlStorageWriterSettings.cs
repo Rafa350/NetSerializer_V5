@@ -5,7 +5,6 @@ namespace NetSerializer.V5.Storage.Xml {
 
     public sealed class XmlStorageWriterSettings {
 
-        public CultureInfo Culture { get; set; }
         public Encoding Encoding { get; set; }
         public bool UseNames { get; set; }
         public bool UseTypes { get; set; }
@@ -18,7 +17,6 @@ namespace NetSerializer.V5.Storage.Xml {
             UseNames = true;
             UseTypes = false;
             UseMeta = false;
-            Culture = CultureInfo.InvariantCulture;
             Encoding = Encoding.UTF8;
             Indentation = 4;
             EncodedStrings = true;

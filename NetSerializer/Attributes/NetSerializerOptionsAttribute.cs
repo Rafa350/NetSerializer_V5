@@ -10,12 +10,12 @@ namespace NetSerializer.V5.Attributes {
 
         public string AliasName {
             get => _aliasName;
-            set => _aliasName = value;
+            init => _aliasName = value;
         }
 
         public bool Exclude {
             get => _exclude;
-            set => _exclude = value;
+            init => _exclude = value;
         }
     }
 }

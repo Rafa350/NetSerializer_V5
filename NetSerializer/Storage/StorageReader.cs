@@ -9,6 +9,17 @@ namespace NetSerializer.V5.Storage {
     public abstract class StorageReader {
 
         /// <summary>
+        /// Comprova si el tipus te un conversor valor.
+        /// </summary>
+        /// <param name="type">El tipus a comprovar.</param>
+        /// <returns>True si en cas afirmatiu.</returns>
+        /// 
+        public virtual bool HasValueConverter(Type type) {
+
+            return false;
+        }
+
+        /// <summary>
         /// Llegeix un valor simple.
         /// </summary>
         /// <param name="name">Nom del node.</param>

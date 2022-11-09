@@ -1,49 +1,50 @@
 ﻿using NetSerializer.V5;
-using NetSerializer.V5.Attributes;
-using NetSerializer.V5.Storage;
 using NetSerializer.V5.Storage.Xml;
+using Test.Types;
 
-namespace LabelTest {
+namespace Test {
+
+
+    public class TestClass {
+
+        private LblPoint _point;
+        private string _stringValue = "abcd";
+        private char _charValue = 'G';
+
+        public TestClass() {
+        }
+
+        public string StringValue {
+            get => _stringValue;
+            set => _stringValue = value;
+        }
+
+        public char CharValue {
+            get => _charValue;
+            set => _charValue = value;
+        }
+
+        public LblPoint Point {
+            get => _point;
+            set => _point = value;
+        }
+    }
 
     class Program {
 
-        private struct TestStruct {
-
-            public int a { get; set; }
-            public int b { get; set; }
-
-            public int bb => b;
-
-            public TestStruct() {
-                a = 1;
-                b = 2;
-            }
-        }
-
-        private class TestClass {
-
-            public int a { get;set; }
-            //[NetSerializerOptions(Exclude = true)]
-            public int b { get; set; }
-        }
-
         static void Main(string[] args) {
 
-            var obj1 = new TestClass() { a = 10, b = 20 };
+            var x = new TestClass();
 
-            var obj2 = new List<TestClass>() {
-                new TestClass() { a = 10, b = 20 },
-                new TestClass() { a = 11, b = 21 },
-                new TestClass() { a = 12, b = 22 }
-            };
-            XmlSerialize(@"c:\temp\ns_output.xml", obj1);
+            XmlSerialize(@"c:\temp\ns_output.xml", x);
+            var y = XmlDeserialize(@"c:\temp\ns_output.xml");
         }
 
         private static void XmlSerialize(string fileName, object obj) {
 
-            Stream stream = new FileStream(fileName, FileMode.Create, FileAccess.Write, FileShare.None);
-            StorageWriter writer = new XmlStorageWriter(stream, null);
-            Serializer s = new Serializer(writer, 100);
+            var stream = new FileStream(fileName, FileMode.Create, FileAccess.Write, FileShare.None);
+            var writer = new XmlStorageWriter(stream, null);
+            var s = new Serializer(writer, 100);
             try {
                 s.Serialize(obj, "root");
             }
@@ -54,11 +55,12 @@ namespace LabelTest {
 
         private static object XmlDeserialize(string fileName) {
 
-            Stream stream = new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.None);
-            StorageReader reader = new XmlStorageReader(stream, null);
-            Deserializer d = new Deserializer(reader);
+            var stream = new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.None);
+            var reader = new XmlStorageReader(stream, null);
+
+            var d = new Deserializer(reader);
             try {
-                return d.Deserialize(typeof(TestStruct), "root");
+                return d.Deserialize(typeof(TestClass), "root");
             }
             finally {
                 d.Close();

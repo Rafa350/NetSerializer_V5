@@ -4,7 +4,14 @@ namespace NetSerializer.V5.Storage.JSon {
 
     public sealed class JSonStorageWriter: StorageWriter {
 
-        public override void WriteValue(string name, object value) {
+        public override void WriteValueStart(string name, Type type) {
+            throw new NotImplementedException();
+        }
+
+        public override void WriteValueEnd() {
+        }
+
+        public override void WriteValue(object value) {
             throw new NotImplementedException();
         }
 

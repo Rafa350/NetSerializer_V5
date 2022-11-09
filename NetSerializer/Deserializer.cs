@@ -10,7 +10,7 @@ namespace NetSerializer.V5 {
     /// 
     public sealed class Deserializer {
 
-        private readonly TypeManager _typeManager = TypeManager.Instance;
+        private readonly TypeSerializerProvider _typeManager = TypeSerializerProvider.Instance;
         private readonly StorageReader _reader;
 
         /// <summary>
