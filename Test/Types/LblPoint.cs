@@ -1,4 +1,4 @@
-﻿using NetSerializer.V5.Storage.Xml.Attributes;
+﻿using NetSerializer.V5.Formatters.Xml.Attributes;
 
 namespace Test.Types {
 

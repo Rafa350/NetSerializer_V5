@@ -1,13 +1,19 @@
 ﻿using NetSerializer.V5;
-using NetSerializer.V5.Storage.Xml;
+using NetSerializer.V5.Attributes;
+using NetSerializer.V5.Formatters.Xml;
 using Test.Types;
 
 namespace Test {
 
+    public enum Sex {
+        Male,
+        Female
+    }
 
     public struct X {
         public int A { get; set; }
         public int B { get; set; }
+        [NetSerializerOptions(Exclude = true)]
         public int C { get; set; }
     }
 
@@ -18,6 +24,7 @@ namespace Test {
         private string _stringValue = "abcd";
         private char _charValue = 'G';
         private X _x;
+        private Sex _sex = Sex.Female;
 
         public TestClass() {
         }
@@ -46,6 +53,11 @@ namespace Test {
             get => _x;
             set => _x = value;
         }
+
+        public Sex Sex {
+            get => _sex;
+            set => _sex = value;
+        }
     }
 
     class Program {
@@ -61,7 +73,7 @@ namespace Test {
         private static void XmlSerialize(string fileName, object obj) {
 
             var stream = new FileStream(fileName, FileMode.Create, FileAccess.Write, FileShare.None);
-            var writer = new XmlStorageWriter(stream, null);
+            var writer = new XmlFormatWriter(stream, null);
             var s = new Serializer(writer, 100);
             try {
                 s.Serialize(obj, "root");
@@ -74,7 +86,7 @@ namespace Test {
         private static object XmlDeserialize(string fileName) {
 
             var stream = new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.None);
-            var reader = new XmlStorageReader(stream, null);
+            var reader = new XmlFormatReader(stream, null);
 
             var d = new Deserializer(reader);
             try {

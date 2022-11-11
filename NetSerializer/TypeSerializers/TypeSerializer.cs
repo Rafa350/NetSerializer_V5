@@ -1,5 +1,5 @@
 ﻿using System;
-using NetSerializer.V5.Storage;
+using NetSerializer.V5.Formatters;
 
 namespace NetSerializer.V5.TypeSerializers {
 
@@ -8,13 +8,6 @@ namespace NetSerializer.V5.TypeSerializers {
     /// </summary>
     /// 
     public abstract class TypeSerializer: ITypeSerializer {
-
-        /// <summary>
-        /// Constructor del objecte.
-        /// </summary>
-        /// 
-        public TypeSerializer() {
-        }
 
         /// <inheritdoc/>
         /// 
@@ -27,10 +20,10 @@ namespace NetSerializer.V5.TypeSerializers {
 
         /// <inheritdoc/>
         /// 
-        public abstract void Serialize(StorageWriter write, string name, Type type, object obj);
+        public abstract void Serialize(FormatWriter write, string name, Type type, object obj);
 
         /// <inheritdoc/>
         /// 
-        public abstract void Deserialize(StorageReader reader, string name, Type type, out object obj);
+        public abstract object Deserialize(FormatReader reader, string name, Type type);
     }
 }

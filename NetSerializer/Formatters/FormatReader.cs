@@ -1,20 +1,20 @@
 ﻿using System;
 
-namespace NetSerializer.V5.Storage {
+namespace NetSerializer.V5.Formatters {
 
     /// <summary>
     /// Clase base pels lectors de dades.
     /// </summary>
     /// 
-    public abstract class StorageReader {
+    public abstract class FormatReader {
 
         /// <summary>
-        /// Comprova si el tipus te un conversor valor.
+        /// Comprova si el tipus lleigir com un valor simple.
         /// </summary>
         /// <param name="type">El tipus a comprovar.</param>
         /// <returns>True si en cas afirmatiu.</returns>
         /// 
-        public virtual bool HasValueConverter(Type type) {
+        public virtual bool CanReadValue(Type type) {
 
             return false;
         }
@@ -90,7 +90,7 @@ namespace NetSerializer.V5.Storage {
     }
 
     /// <summary>
-    /// Indentifica el tipus de resultat del metode 'StoregeReader.ReadObjectStart'
+    /// Indentifica el tipus de resultat del metode 'ReadObjectStart'
     /// </summary>
     /// 
     public enum ReadObjectResultType {
@@ -100,10 +100,10 @@ namespace NetSerializer.V5.Storage {
     }
 
     /// <summary>
-    /// El resultat del metode 'StoregeReader.ReadObjectStart'
+    /// El resultat del metode 'ReadObjectStart'
     /// </summary>
     /// 
-    public sealed class ReadObjectResult {
+    public readonly struct ReadObjectResult {
 
         private readonly ReadObjectResultType _resultType;
         private readonly Type _objectType;
@@ -124,7 +124,7 @@ namespace NetSerializer.V5.Storage {
         /// 
         public Type ObjectType {
             get => _objectType;
-            init => _objectType= value;
+            init => _objectType = value;
         }
 
         /// <summary>
@@ -138,7 +138,7 @@ namespace NetSerializer.V5.Storage {
     }
 
     /// <summary>
-    /// Identifica el tipus de resultat del metode 'StorageReader.ReadArrayStart'
+    /// Identifica el tipus de resultat del metode 'ReadArrayStart'
     /// </summary>
     /// 
     public enum ReadArrayResultType {
@@ -147,10 +147,10 @@ namespace NetSerializer.V5.Storage {
     }
 
     /// <summary>
-    /// El resultat de metode 'StorageReader.ReadArrayStart'
+    /// El resultat de metode 'ReadArrayStart'
     /// </summary>
     /// 
-    public sealed class ReadArrayResult {
+    public readonly struct ReadArrayResult {
 
         private readonly ReadArrayResultType _resultType;
         private readonly int _count;

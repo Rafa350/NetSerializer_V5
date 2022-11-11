@@ -1,5 +1,5 @@
 ﻿using System;
-using NetSerializer.V5.Storage;
+using NetSerializer.V5.Formatters;
 using NetSerializer.V5.TypeSerializers.Serializers.Infrastructure;
 
 namespace NetSerializer.V5.TypeSerializers.Serializers {
@@ -9,11 +9,6 @@ namespace NetSerializer.V5.TypeSerializers.Serializers {
     /// </summary>
     /// 
     public sealed class ArraySerializer: TypeSerializer {
-
-        /// <inheritdoc/>
-        /// 
-        public ArraySerializer() {
-        }
 
         /// <inheritdoc/>
         /// 
@@ -27,7 +22,7 @@ namespace NetSerializer.V5.TypeSerializers.Serializers {
 
         /// <inheritdoc/>
         /// 
-        public override void Serialize(StorageWriter writer, string name, Type type, object obj) {
+        public override void Serialize(FormatWriter writer, string name, Type type, object obj) {
 
             if (writer == null)
                 throw new ArgumentNullException(nameof(writer));
@@ -65,7 +60,7 @@ namespace NetSerializer.V5.TypeSerializers.Serializers {
 
         /// <inheritdoc/>
         /// 
-        public override void Deserialize(StorageReader reader, string name, Type type, out object obj) {
+        public override object Deserialize(FormatReader reader, string name, Type type) {
 
             if (reader == null)
                 throw new ArgumentNullException(nameof(reader));
@@ -79,7 +74,7 @@ namespace NetSerializer.V5.TypeSerializers.Serializers {
 
             ReadArrayResult result = reader.ReadArrayStart(name);
             if (result.ResultType == ReadArrayResultType.Null)
-                obj = null;
+                return null;
 
             else {
                 Array array = Array.CreateInstance(type.GetElementType(), result.Bounds);
@@ -89,7 +84,7 @@ namespace NetSerializer.V5.TypeSerializers.Serializers {
 
                     var serializer = TypeSerializerProvider.Instance.GetSerializer(type.GetElementType());
                     var elementName = String.Format("{0}[{1}]", name, index);
-                    serializer.Deserialize(reader, elementName, type.GetElementType(), out object elementValue);
+                    var elementValue = serializer.Deserialize(reader, elementName, type.GetElementType());
                     array.SetValue(elementValue, index.Current);
 
                     index.Next();
@@ -97,7 +92,7 @@ namespace NetSerializer.V5.TypeSerializers.Serializers {
 
                 reader.ReadArrayEnd();
 
-                obj = array;
+                return array;
             }
         }
     }

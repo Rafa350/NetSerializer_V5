@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace NetSerializer.V5.Storage.Xml.ValueConverters {
+namespace NetSerializer.V5.Formatters.Xml.ValueConverters {
 
     public interface IXmlValueConverter {
 
@@ -13,19 +13,20 @@ namespace NetSerializer.V5.Storage.Xml.ValueConverters {
         bool CanConvert(Type type);
 
         /// <summary>
-        /// Converteix l'objecte a string.
+        /// Converteix l'objecte a text.
         /// </summary>
         /// <param name="obj">L'objecte.</param>
-        /// <returns>La string que representa l'objecte.</returns>
+        /// <returns>El text que representa l'objecte.</returns>
         /// 
         string ConvertToString(object obj);
 
         /// <summary>
-        /// Converteix una string en el objecte.
+        /// Converteix un text a un objecte.
         /// </summary>
-        /// <param name="str">La estring.</param>
+        /// <param name="str">El text.</param>
+        /// <param name="type">El tipus d'objecte.</param>
         /// <returns>L'objecte.</returns>
         /// 
-        object ConvertFromString(string str);
+        object ConvertFromString(string str, Type type);
     }
 }

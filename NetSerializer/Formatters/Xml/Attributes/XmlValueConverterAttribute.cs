@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace NetSerializer.V5.Storage.Xml.Attributes {
+namespace NetSerializer.V5.Formatters.Xml.Attributes {
 
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct)]
     public sealed class XmlValueConverterAttribute: Attribute {

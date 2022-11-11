@@ -1,5 +1,5 @@
 ﻿using System.Globalization;
-using NetSerializer.V5.Storage.Xml.ValueConverters;
+using NetSerializer.V5.Formatters.Xml.ValueConverters;
 
 namespace Test.Types {
 
@@ -7,13 +7,10 @@ namespace Test.Types {
 
         private readonly CultureInfo _culture = CultureInfo.InvariantCulture;
 
-        public LblPointConverter() {
-        }
-
         public bool CanConvert(Type type) =>
             type == typeof(LblPoint);
 
-        public object ConvertFromString(string str) {
+        public object ConvertFromString(string str, Type type) {
 
             string separator = _culture.TextInfo.ListSeparator;
 

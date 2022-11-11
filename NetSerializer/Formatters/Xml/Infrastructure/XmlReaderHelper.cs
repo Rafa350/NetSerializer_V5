@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Xml;
 
-namespace NetSerializer.V5.Storage.Xml.Infrastructure {
+namespace NetSerializer.V5.Formatters.Xml.Infrastructure {
 
     internal static class XmlReaderHelper {
 

@@ -1,5 +1,5 @@
 ﻿using System;
-using NetSerializer.V5.Storage;
+using NetSerializer.V5.Formatters;
 using NetSerializer.V5.TypeSerializers;
 
 namespace NetSerializer.V5 {
@@ -10,7 +10,7 @@ namespace NetSerializer.V5 {
     /// 
     public sealed class Serializer {
 
-        private readonly StorageWriter _writer;
+        private readonly FormatWriter _writer;
         private readonly TypeSerializerProvider _typeSerializerProvider = TypeSerializerProvider.Instance;
         private readonly int _version;
 
@@ -19,9 +19,9 @@ namespace NetSerializer.V5 {
         /// </summary>
         /// <param name="writer">Objecte escriptor de dades.</param>
         /// <param name="version">Numero de versio.</param>
-        /// <seealso cref="StorageWriter"/>
+        /// <seealso cref="FormatWriter"/>
         /// 
-        public Serializer(StorageWriter writer, int version) {
+        public Serializer(FormatWriter writer, int version) {
 
             _writer = writer ?? throw new ArgumentNullException(nameof(writer));
             _version = version;
@@ -60,8 +60,8 @@ namespace NetSerializer.V5 {
             _writer.Initialize(_version);
             _typeSerializerProvider.Initialize();
 
-            var serializer = _typeSerializerProvider.GetSerializer(obj.GetType());
-            serializer.Serialize(_writer, name, obj.GetType(), obj);
+            var typeSerializer = _typeSerializerProvider.GetSerializer(obj.GetType());
+            typeSerializer.Serialize(_writer, name, obj.GetType(), obj);
         }
     }
 }

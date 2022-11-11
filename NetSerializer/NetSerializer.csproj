@@ -27,11 +27,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Storage\Xml\DataSchema.xsd" />
+    <None Remove="Formatters\Xml\DataSchema.xsd" />
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="Storage\Xml\Schemas\DataSchema.xsd" />
+    <EmbeddedResource Include="Formatters\Xml\Schemas\DataSchema.xsd" />
   </ItemGroup>
 
   <ItemGroup>

@@ -1,5 +1,5 @@
 ﻿using System;
-using NetSerializer.V5.Storage;
+using NetSerializer.V5.Formatters;
 
 namespace NetSerializer.V5.TypeSerializers {
 
@@ -31,16 +31,16 @@ namespace NetSerializer.V5.TypeSerializers {
         /// <param name="type">Tipo del objeto a serializar.</param>
         /// <param name="obj">El objeto a serializar.</param>
         /// 
-        void Serialize(StorageWriter writer, string name, Type type, object obj);
+        void Serialize(FormatWriter writer, string name, Type type, object obj);
 
         /// <summary>
         /// Deserializa un objeto.
         /// </summary>
-        /// <param name="reader">El objeto StorageReader, que realizara la lecture del objeto serializado.</param>
+        /// <param name="reader">El objeto StorageReader, que realizara la lectura del objeto serializado.</param>
         /// <param name="name">Nombre del nodo.</param>
         /// <param name="type">Tipo del objeto a deserializar.</param>
-        /// <param name="obj">El objeto deserializado.</param>
+        /// <returns>L'objecte deserialitzat.</returns>
         /// 
-        void Deserialize(StorageReader reader, string name, Type type, out object obj);
+        object Deserialize(FormatReader reader, string name, Type type);
     }
 }

@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Linq;
 using System.Reflection;
 using NetSerializer.V5.Attributes;
 
@@ -11,7 +13,10 @@ namespace NetSerializer.V5.Descriptors {
     /// 
     public sealed class TypeDescriptor {
 
-        private readonly List<PropertyDescriptor> _propertyDescriptors = new List<PropertyDescriptor>();
+        private readonly Type _type;
+        private readonly TypeConverter _customConverter = null;
+        private readonly TypeConverter _defaultConverter = null;
+        private List<PropertyDescriptor> _propertyDescriptors = null;
 
         /// <summary>
         /// Contructor del objecte.
@@ -20,10 +25,19 @@ namespace NetSerializer.V5.Descriptors {
         /// 
         public TypeDescriptor(Type type) {
 
-            if (type == null)
-                throw new ArgumentNullException(nameof(type));
+            _type = type ?? throw new ArgumentNullException(nameof(type));
 
-            // Obte les propietats serializables
+            // Obte el conversor de tipus 
+            //
+            _defaultConverter = System.ComponentModel.TypeDescriptor.GetConverter(type);
+
+            // Obte el conversor de tipus customitzat
+            //
+            var typeConverterAttribute = type.GetCustomAttribute<TypeConverterAttribute>();
+            if (typeConverterAttribute != null)
+                _customConverter = (TypeConverter)Activator.CreateInstance(Type.GetType(typeConverterAttribute.ConverterTypeName));
+
+            // Obte les propietats, i si son serialitzables, les afegeix a la llista.
             //
             foreach (var propertyInfo in type.GetProperties(BindingFlags.Instance | BindingFlags.Public)) {
 
@@ -34,29 +48,65 @@ namespace NetSerializer.V5.Descriptors {
 
                 // Comprova les opcions
                 //
-                var attr = propertyInfo.GetCustomAttribute<NetSerializerOptionsAttribute>();
-                if (attr != null) {
+                var netSerializerOptionsAttribute = propertyInfo.GetCustomAttribute<NetSerializerOptionsAttribute>();
+                if (netSerializerOptionsAttribute != null) {
 
                     // Si es una propietat excluida, la descarta
                     //
-                    if (attr.Exclude)
+                    if (netSerializerOptionsAttribute.Exclude)
                         continue;
                 }
 
+                // Crea la llista si cal.
+                //
+                if (_propertyDescriptors == null)
+                    _propertyDescriptors = new List<PropertyDescriptor>();
+
+                // Afegeix el descriptor de la propietat.
+                //
                 _propertyDescriptors.Add(new PropertyDescriptor(propertyInfo));
             }
 
             // Ordena els descriptors per orde alfabetic del nom
             //
-            _propertyDescriptors.Sort((a, b) => String.Compare(a.Name, b.Name));
+            if (_propertyDescriptors != null)
+                _propertyDescriptors.Sort((a, b) => String.Compare(a.Name, b.Name));
         }
+
+        /// <summary>
+        /// Obte el tipus que representa aquest descriptor.
+        /// </summary>
+        /// 
+        public Type Type =>
+            _type;
+
+        /// <summary>
+        /// Obte el conversor de tipus customitzat
+        /// </summary>
+        /// 
+        public TypeConverter CustomConverter =>
+            _customConverter;
+
+        /// <summary>
+        /// Obte el conversor de tipus predefinit
+        /// </summary>
+        /// 
+        public TypeConverter DefaultConverter =>
+            _defaultConverter;
+
+        /// <summary>
+        /// Indica si conte descriptors de propietats.
+        /// </summary>
+        /// 
+        public bool HasPropertyDescriptors =>
+            _propertyDescriptors != null;
 
         /// <summary>
         /// Enumera els descriptors de les propietats serialitzables
         /// </summary>
         /// 
         public IEnumerable<PropertyDescriptor> PropertyDescriptors =>
-            _propertyDescriptors;
+            _propertyDescriptors == null ? Enumerable.Empty<PropertyDescriptor>() : _propertyDescriptors;
     }
 }
 

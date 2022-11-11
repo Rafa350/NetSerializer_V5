@@ -1,8 +1,8 @@
 ﻿using System.Text;
 
-namespace NetSerializer.V5.Storage.Xml {
+namespace NetSerializer.V5.Formatters.Xml {
 
-    public sealed class XmlStorageWriterSettings {
+    public sealed class XmlFormatWriterSettings {
 
         public Encoding Encoding { get; set; }
         public bool UseNames { get; set; }
@@ -10,7 +10,7 @@ namespace NetSerializer.V5.Storage.Xml {
         public int Indentation { get; set; }
         public bool EncodedStrings { get; set; }
 
-        public XmlStorageWriterSettings() {
+        public XmlFormatWriterSettings() {
 
             UseNames = true;
             UseMeta = false;

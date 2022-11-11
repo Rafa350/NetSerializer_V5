@@ -1,22 +1,22 @@
 ﻿using System;
-using System.ComponentModel;
 using System.Globalization;
 using System.IO;
 using System.Text;
 using System.Xml;
-using NetSerializer.V5.Storage.Xml.Infrastructure;
-using NetSerializer.V5.Storage.Xml.ValueConverters;
+using NetSerializer.V5.Descriptors;
+using NetSerializer.V5.Formatters.Xml.Infrastructure;
+using NetSerializer.V5.Formatters.Xml.ValueConverters;
 
-namespace NetSerializer.V5.Storage.Xml {
+namespace NetSerializer.V5.Formatters.Xml {
 
     /// <summary>
     /// Escriptor de dades en format XML.
     /// </summary>
     /// 
-    public sealed class XmlStorageWriter: StorageWriter {
+    public sealed class XmlFormatWriter: FormatWriter {
 
         private const int _serializerVersion = 500;
-        private readonly XmlStorageWriterSettings _settings;
+        private readonly XmlFormatWriterSettings _settings;
         private readonly Stream _stream;
         private XmlWriter _writer;
 
@@ -26,10 +26,10 @@ namespace NetSerializer.V5.Storage.Xml {
         /// <param name="stream">El stream d'escriptura.</param>
         /// <param name="settings">Parametres de configuracio.</param>
         /// 
-        public XmlStorageWriter(Stream stream, XmlStorageWriterSettings settings) {
+        public XmlFormatWriter(Stream stream, XmlFormatWriterSettings settings) {
 
             _stream = stream ?? throw new ArgumentNullException(nameof(stream));
-            _settings = settings ?? new XmlStorageWriterSettings();
+            _settings = settings ?? new XmlFormatWriterSettings();
         }
 
         /// <summary>
@@ -75,10 +75,16 @@ namespace NetSerializer.V5.Storage.Xml {
 
         /// <inheritdoc/>
         /// 
-        public override bool HasValueConverter(Type type) {
+        public override bool CanWriteValue(Type type) {
 
-            var provider = XmlValueConverterProvider.Instance;
-            return provider.GetConverter(type) != null;
+            if (XmlValueConverterProvider.Instance.GetConverter(type) != null)
+                return true;
+
+            var typeDescriptor = TypeDescriptorProvider.Instance.GetDescriptor(type);
+            if (typeDescriptor.CustomConverter != null)
+                return true;
+
+            return false;
         }
 
         /// <inheritdoc/>
@@ -104,13 +110,7 @@ namespace NetSerializer.V5.Storage.Xml {
         /// 
         public override void WriteValue(object value) {
 
-            Type type = value.GetType();
-            var provider = XmlValueConverterProvider.Instance;
-            var converter = provider.GetConverter(type);
-            if (converter != null)
-                _writer.WriteValue(converter.ConvertToString(value));
-            else
-                _writer.WriteValue(ValueToString(value));
+            _writer.WriteValue(ConvertToString(value));
         }
 
         /// <inheritdoc/>
@@ -153,7 +153,11 @@ namespace NetSerializer.V5.Storage.Xml {
             _writer.WriteStartElement("object");
             if (_settings.UseNames)
                 _writer.WriteAttribute("name", name);
-            _writer.WriteAttribute("type", obj.GetType().AssemblyQualifiedName);
+
+            var type = obj.GetType();
+            var typeName = String.Format("{0}, {1}", type.FullName, type.Assembly.GetName().Name);
+
+            _writer.WriteAttribute("type", typeName);
             _writer.WriteAttribute("id", id);
         }
 
@@ -222,59 +226,47 @@ namespace NetSerializer.V5.Storage.Xml {
             _writer.WriteAttribute("count", count);
         }
 
+        /// <summary>
+        /// Converteix objecte a text.
+        /// </summary>
+        /// <param name="obj">L'objecte a convertir.</param>
+        /// <returns>El resultat.</returns>
+        /// <exception cref="InvalidOperationException">Es imposible realñitzar la converssio.</exception>
+        /// 
+        private static string ConvertToString(object obj) {
+
+            Type type = obj.GetType();
+
+            // Intenta primer amb els conversors propis.
+            //
+            var valueConverter = XmlValueConverterProvider.Instance.GetConverter(type);
+            if (valueConverter != null)
+                return valueConverter.ConvertToString(obj);
+
+            // Si no pot, ho intenta amb els conversors del sistema
+            //
+            else {
+                var typeDescriptor = TypeDescriptorProvider.Instance.GetDescriptor(type);
+                var typeConverter = typeDescriptor.CustomConverter;
+                if (typeConverter == null)
+                    typeConverter = typeDescriptor.DefaultConverter;
+
+                if ((typeConverter != null) && typeConverter.CanConvertTo(typeof(string)))
+                    return typeConverter.ConvertToString(null, CultureInfo.InvariantCulture, obj);
+
+                // Si tampoc pot, genera una excepcio.
+                //
+                else
+                    throw new InvalidOperationException(
+                        String.Format("No se puede convertir el valor '{0} de tipo '{1}' a string.", obj, type.FullName));
+            }
+        }
+
         /// <inheritdoc/>
         /// 
         public override void WriteArrayEnd() {
 
             _writer.WriteEndElement();
-        }
-
-        /// <summary>
-        /// Converteix un valor a string.
-        /// </summary>
-        /// <param name="value">El valor a convertir.</param>
-        /// <param name="culture">Informacio cultural.</param>
-        /// <returns>El resultat de la converssio.</returns>
-        /// 
-        private string ValueToString(object value) {
-
-            if (value == null)
-                return null;
-
-            else {
-                Type type = value.GetType();
-
-                // Es tipus 'char'
-                //
-                if (type == typeof(char))
-                    return Convert.ToUInt16(value).ToString();
-
-                // Es tipus 'string'
-                //
-                else if (type == typeof(string)) {
-                    string s = (string)value;
-                    if (s.Length == 0)
-                        return null;
-                    else {
-                        if (_settings.EncodedStrings) {
-                            byte[] bytes = Encoding.UTF8.GetBytes(s);
-                            return Convert.ToBase64String(bytes);
-                        }
-                        else
-                            return s;
-                    }
-                }
-
-                // Altres tipus
-                //
-                else {
-                    TypeConverter converter = TypeDescriptor.GetConverter(type);
-                    if ((converter != null) && converter.CanConvertTo(typeof(string)))
-                        return converter.ConvertToString(null, CultureInfo.InvariantCulture, value);
-                    else
-                        return value.ToString();
-                }
-            }
         }
     }
 }

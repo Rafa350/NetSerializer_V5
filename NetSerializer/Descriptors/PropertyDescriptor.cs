@@ -10,7 +10,6 @@ namespace NetSerializer.V5.Descriptors {
     public sealed class PropertyDescriptor {
 
         private readonly PropertyInfo _propertyInfo;
-        private readonly bool _canSerialize;
 
         /// <summary>
         /// Contructor del objecte.
@@ -20,7 +19,6 @@ namespace NetSerializer.V5.Descriptors {
         public PropertyDescriptor(PropertyInfo propertyInfo) {
 
             _propertyInfo = propertyInfo;
-            _canSerialize = propertyInfo.PropertyType.GetCustomAttribute<NonSerializedAttribute>() == null;
         }
 
         /// <summary>
@@ -45,7 +43,7 @@ namespace NetSerializer.V5.Descriptors {
         /// Obte el tipus de la propietat
         /// </summary>
         /// 
-        public Type PropertyType =>
+        public Type Type =>
             _propertyInfo.PropertyType;
 
         /// <summary>
@@ -60,13 +58,13 @@ namespace NetSerializer.V5.Descriptors {
         /// </summary>
         /// 
         public bool CanRead =>
-            _propertyInfo.CanRead && _canSerialize;
+            _propertyInfo.CanRead;
 
         /// <summary>
         /// Indica si es pot escriure la propietat
         /// </summary>
         /// 
         public bool CanWrite =>
-            _propertyInfo.CanWrite && _canSerialize;
+            _propertyInfo.CanWrite;
     }
 }

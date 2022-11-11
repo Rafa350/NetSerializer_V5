@@ -1,5 +1,5 @@
 ﻿using System;
-using NetSerializer.V5.Storage;
+using NetSerializer.V5.Formatters;
 using NetSerializer.V5.TypeSerializers;
 
 namespace NetSerializer.V5 {
@@ -11,7 +11,7 @@ namespace NetSerializer.V5 {
     public sealed class Deserializer {
 
         private readonly TypeSerializerProvider _typeManager = TypeSerializerProvider.Instance;
-        private readonly StorageReader _reader;
+        private readonly FormatReader _reader;
 
         /// <summary>
         /// Constructor de la clase.
@@ -19,7 +19,7 @@ namespace NetSerializer.V5 {
         /// <param name="reader">Objeto StorageReader. Si es nulo dispara una excepcion.</param>
         /// <exception cref="ArgumentNullException">Elgun argumento es nulo.</exception>
         /// 
-        public Deserializer(StorageReader reader) {
+        public Deserializer(FormatReader reader) {
 
             _reader = reader ?? throw new ArgumentNullException(nameof(reader));
         }
@@ -54,10 +54,8 @@ namespace NetSerializer.V5 {
             _reader.Initialize();
             _typeManager.Initialize();
 
-            var serializer = _typeManager.GetSerializer(type);
-            serializer.Deserialize(_reader, name, type, out object obj);
-
-            return obj;
+            var typeSerializer = _typeManager.GetSerializer(type);
+            return typeSerializer.Deserialize(_reader, name, type);
         }
 
         /// <summary>

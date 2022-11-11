@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace NetSerializer.V5.Storage.Xml.ValueConverters {
+namespace NetSerializer.V5.Formatters.Xml.ValueConverters {
 
     public interface IXmlValueConverterProvider {
 

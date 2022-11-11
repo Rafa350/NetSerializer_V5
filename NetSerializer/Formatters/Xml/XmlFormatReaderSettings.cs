@@ -1,15 +1,15 @@
 ﻿using System.Globalization;
 
-namespace NetSerializer.V5.Storage.Xml {
+namespace NetSerializer.V5.Formatters.Xml {
 
-    public sealed class XmlStorageReaderSettings {
+    public sealed class XmlFormatReaderSettings {
 
         public CultureInfo Culture;
         public bool CheckNames;
         public bool UseSchemaValidation;
-        public XmlReaderPreprocessor Preprocesor;
+        public XmlFormatReaderPreprocessor Preprocesor;
 
-        public XmlStorageReaderSettings() {
+        public XmlFormatReaderSettings() {
 
             Culture = CultureInfo.InvariantCulture;
             CheckNames = true;

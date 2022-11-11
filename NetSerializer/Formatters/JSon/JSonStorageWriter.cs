@@ -1,8 +1,8 @@
 ﻿using System;
 
-namespace NetSerializer.V5.Storage.JSon {
+namespace NetSerializer.V5.Formatters.JSon {
 
-    public sealed class JSonStorageWriter: StorageWriter {
+    public sealed class JSonStorageWriter: FormatWriter {
 
         public override void WriteValueStart(string name, Type type) {
             throw new NotImplementedException();

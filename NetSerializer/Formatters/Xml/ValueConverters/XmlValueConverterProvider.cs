@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using NetSerializer.V5.Storage.Xml.Attributes;
-using NetSerializer.V5.Storage.Xml.ValueConverters.Converters;
+using NetSerializer.V5.Formatters.Xml.Attributes;
+using NetSerializer.V5.Formatters.Xml.ValueConverters.Converters;
 
-namespace NetSerializer.V5.Storage.Xml.ValueConverters {
+namespace NetSerializer.V5.Formatters.Xml.ValueConverters {
 
     public sealed class XmlValueConverterProvider: IXmlValueConverterProvider {
 

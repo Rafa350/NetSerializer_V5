@@ -1,26 +1,27 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Globalization;
 using System.IO;
 using System.Reflection;
-using System.Text;
 using System.Xml;
 using System.Xml.Schema;
-using NetSerializer.V5.Storage.Xml.Infrastructure;
-using NetSerializer.V5.Storage.Xml.ValueConverters;
+using NetSerializer.V5.Descriptors;
+using NetSerializer.V5.Formatters.Xml.Infrastructure;
+using NetSerializer.V5.Formatters.Xml.ValueConverters;
 
-namespace NetSerializer.V5.Storage.Xml {
+namespace NetSerializer.V5.Formatters.Xml {
 
     /// <summary>
     /// Lector de dades en format XML.
     /// </summary>
     /// 
-    public sealed class XmlStorageReader: StorageReader {
+    public sealed class XmlFormatReader: FormatReader {
 
-        private const string _schemaResourceName = "NetSerializer.V5.Storage.Xml.Schemas.DataSchema.xsd";
+        private const string _schemaResourceName = "NetSerializer.V5.Formatters.Xml.Schemas.DataSchema.xsd";
 
         private readonly Stream _stream;
-        private readonly XmlStorageReaderSettings _settings;
+        private readonly XmlFormatReaderSettings _settings;
         private XmlReader _reader;
         private int _serializerVersion = 0;
         private int _dataVersion = 0;
@@ -34,10 +35,10 @@ namespace NetSerializer.V5.Storage.Xml {
         /// <param name="stream">Stream d'entrada.</param>
         /// <param name="settings">Parametres de configuracio. Si es null, s'utilitza la configuracio per defecte.</param>
         /// 
-        public XmlStorageReader(Stream stream, XmlStorageReaderSettings settings) {
+        public XmlFormatReader(Stream stream, XmlFormatReaderSettings settings) {
 
             _stream = stream ?? throw new ArgumentNullException(nameof(stream));
-            _settings = settings ?? new XmlStorageReaderSettings();
+            _settings = settings ?? new XmlFormatReaderSettings();
         }
 
         /// <inheritdoc/>
@@ -118,10 +119,15 @@ namespace NetSerializer.V5.Storage.Xml {
 
         /// <inheritdoc/>
         /// 
-        public override bool HasValueConverter(Type type) {
+        public override bool CanReadValue(Type type) {
 
-            var provider = XmlValueConverterProvider.Instance;
-            return provider.GetConverter(type) != null;
+            if (XmlValueConverterProvider.Instance.GetConverter(type) != null)
+                return true;
+
+            if (type.GetCustomAttribute<TypeConverterAttribute>() != null)
+                return true;
+
+            return false;
         }
 
         /// <inheritdoc/>
@@ -142,14 +148,7 @@ namespace NetSerializer.V5.Storage.Xml {
                         throw new InvalidOperationException(String.Format("Se esperaba un valor de nombre '{0}'.", name));
                 }
 
-                string content = GetContent();
-
-                var provider = XmlValueConverterProvider.Instance;
-                var converter = provider.GetConverter(type);
-                if (converter != null)
-                    return converter.ConvertFromString(content);
-                else
-                    return ValueFromString(type, content);
+                return ConvertFromString(GetContent(), type);
             }
         }
 
@@ -305,44 +304,37 @@ namespace NetSerializer.V5.Storage.Xml {
         }
 
         /// <summary>
-        /// Converteix una cadena a objecte.
+        /// Converteix un text a un objecte del tipus expecificat.
         /// </summary>
-        /// <param name="type"></param>
-        /// <param name="value"></param>
-        /// <param name="culture"></param>
-        /// <returns>El resultat de la converssio.</returns>
+        /// <param name="value">El text convertir.</param>
+        /// <param name="type">El tipus del objecte.</param>
+        /// <returns>El resultat.</returns>
+        /// <exception cref="InvalidOperationException">Imposible realitzar la converssio.</exception>
         /// 
-        private object ValueFromString(Type type, string value) {
+        private static object ConvertFromString(string value, Type type) {
 
-            if (value == null)
-                return null;
+            // Primer ho intenta amb els conversors propis.
+            //
+            var valueConverter = XmlValueConverterProvider.Instance.GetConverter(type);
+            if (valueConverter != null)
+                return valueConverter.ConvertFromString(value, type);
 
+            // Si no pot, ho intenta amb els conversors del sistema.
+            //
             else {
-                // Tipus 'char'
-                //
-                if (type == typeof(char))
-                    return Convert.ToChar(UInt16.Parse(value));
+                var typeDescriptor = TypeDescriptorProvider.Instance.GetDescriptor(type);
+                var typeConverter = typeDescriptor.CustomConverter;
+                if (typeConverter == null)
+                    typeConverter = typeDescriptor.DefaultConverter;
 
-                // Tipus 'string'
-                //
-                else if (type == typeof(string)) {
-                    if (_encodedStrings) {
-                        byte[] bytes = Convert.FromBase64String(value);
-                        return Encoding.UTF8.GetString(bytes, 0, bytes.Length);
-                    }
-                    else
-                        return value;
-                }
+                if ((typeConverter != null) && typeConverter.CanConvertFrom(typeof(string)))
+                    return typeConverter.ConvertFromString(null, CultureInfo.InvariantCulture, value);
 
-                // Altres tipus
+                // Si tampoc pot, genera una excepcio.
                 //
-                else {
-                    TypeConverter converter = TypeDescriptor.GetConverter(type);
-                    if ((converter != null) && converter.CanConvertFrom(typeof(string)))
-                        return converter.ConvertFromString(null, _settings.Culture, value);
-                    else
-                        return Convert.ChangeType(value, type);
-                }
+                else
+                    throw new InvalidOperationException(
+                        String.Format("No se puede convertir '{0}', al tipo '{1}'.", value, type.FullName));
             }
         }
 

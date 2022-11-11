@@ -4,13 +4,13 @@ using System.Text;
 using System.Xml;
 using System.Xml.Xsl;
 
-namespace NetSerializer.V5.Storage.Xml {
+namespace NetSerializer.V5.Formatters.Xml {
 
-    public sealed class XmlReaderPreprocessor {
+    public sealed class XmlFormatReaderPreprocessor {
 
         private readonly XslCompiledTransform _transform;
 
-        public XmlReaderPreprocessor(Stream template) {
+        public XmlFormatReaderPreprocessor(Stream template) {
 
             if (template == null)
                 throw new ArgumentNullException(nameof(template));

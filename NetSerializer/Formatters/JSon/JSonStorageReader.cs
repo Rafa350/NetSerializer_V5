@@ -1,8 +1,8 @@
 ﻿using System;
 
-namespace NetSerializer.V5.Storage.JSon {
+namespace NetSerializer.V5.Formatters.JSon {
 
-    public sealed class JSonStorageReader: StorageReader {
+    public sealed class JSonStorageReader: FormatReader {
 
         public override object ReadValue(string name, Type type) {
             throw new System.NotImplementedException();

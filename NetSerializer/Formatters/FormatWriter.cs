@@ -1,4 +1,4 @@
-﻿namespace NetSerializer.V5.Storage {
+﻿namespace NetSerializer.V5.Formatters {
 
     using System;
 
@@ -6,15 +6,15 @@
     /// Clase base pels escriptors de dades.
     /// </summary>
     /// 
-    public abstract class StorageWriter {
+    public abstract class FormatWriter {
 
         /// <summary>
-        /// Comprova si el tipus te un conversor de valor.
+        /// Comprova si el tipus es pot escriure com un valor simple.
         /// </summary>
         /// <param name="type">El tipus a comprovar.</param>
         /// <returns>True si en cas afirmatiu.</returns>
         /// 
-        public virtual bool HasValueConverter(Type type) {
+        public virtual bool CanWriteValue(Type type) {
 
             return false;
         }
