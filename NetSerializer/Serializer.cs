@@ -10,43 +10,28 @@ namespace NetSerializer.V5 {
     /// 
     public sealed class Serializer {
 
-        private readonly FormatWriter _writer;
-        private readonly TypeSerializerProvider _typeSerializerProvider = TypeSerializerProvider.Instance;
-        private readonly int _version;
+        private readonly TypeSerializerProvider _typeSerializerProvider;
 
         /// <summary>
         /// Constructor de la clase.
         /// </summary>
-        /// <param name="writer">Objecte escriptor de dades.</param>
-        /// <param name="version">Numero de versio.</param>
-        /// <seealso cref="FormatWriter"/>
         /// 
-        public Serializer(FormatWriter writer, int version) {
+        public Serializer() {
 
-            _writer = writer ?? throw new ArgumentNullException(nameof(writer));
-            _version = version;
+            _typeSerializerProvider = new TypeSerializerProvider();
         }
 
         /// <summary>
-        /// Tanca el serializador.
+        /// Afegeix un serialitzador de tipus.
         /// </summary>
+        /// <param name="typeSeriaslizer">El serialitzacio.</param>
         /// 
-        public void Close() {
+        public void AddSerializer(ITypeSerializer typeSeriaslizer) {
 
-            _writer.Close();
-        }
+            if (typeSeriaslizer == null)
+                throw new ArgumentNullException(nameof(typeSeriaslizer));
 
-        /// <summary>
-        /// Afegeix un serialitzador.
-        /// </summary>
-        /// <param name="serializer">El serialitzador a afeigir.</param>
-        /// 
-        public void AddSerializer(ITypeSerializer serializer) {
-
-            if (serializer == null)
-                throw new ArgumentNullException(nameof(serializer));
-
-            _typeSerializerProvider.AddSerializer(serializer);
+            _typeSerializerProvider.AddSerializer(typeSeriaslizer);
         }
 
         /// <summary>
@@ -55,13 +40,65 @@ namespace NetSerializer.V5 {
         /// <param name="obj">El objecte a serialitzar.</param>
         /// <param name="name">Identificador del objecte.</param>
         /// 
-        public void Serialize(object obj, string name) {
+        public void Serialize(FormatWriter writer, object obj, string name = "root", int version = 0) {
 
-            _writer.Initialize(_version);
-            _typeSerializerProvider.Initialize();
+            if (writer == null)
+                throw new ArgumentNullException(nameof(writer));
 
-            var typeSerializer = _typeSerializerProvider.GetSerializer(obj.GetType());
-            typeSerializer.Serialize(_writer, name, obj.GetType(), obj);
+            if (obj == null)
+                throw new ArgumentNullException(nameof(obj));
+
+            writer.Initialize(version);
+            try {
+                var context = new SerializationContext(writer, _typeSerializerProvider);
+
+                var typeSerializer = context.GetTypeSerializer(obj.GetType());
+                typeSerializer.Serialize(context, name, obj.GetType(), obj);
+            }
+            finally {
+                writer.Close();
+            }
+        }
+
+        /// <summary>
+        /// Deserializa un objeto
+        /// </summary>
+        /// <param name="type">Tipo del objeto a deserializar. Si es nulo dispara una excepcion.</param>
+        /// <param name="name">Nombre del nodo raiz.</param>
+        /// <returns>El objeto deserializado.</returns>
+        /// <exception cref="ArgumentNullException">Algun argumento es nulo.</exception>
+        /// 
+        public object Deserialize(FormatReader reader, Type type, string name) {
+
+            if (reader == null)
+                throw new ArgumentNullException(nameof(reader));
+
+            if (type == null)
+                throw new ArgumentNullException(nameof(type));
+
+            reader.Initialize();
+            try {
+                var context = new DeserializationContext(reader, _typeSerializerProvider);
+
+                var typeSerializer = context.GetTypeSerializer(type);
+                typeSerializer.Deserialize(context, name, type, out object obj);
+                return obj;
+            }
+            finally {
+                reader.Close();
+            }
+        }
+
+        /// <summary>
+        /// Deserializa un objeto (Version generica).
+        /// </summary>
+        /// <param name="name">Nombre del nodo raiz.</param>
+        /// <returns>El objeto deserializado.</returns>
+        /// <exception cref="ArgumentNullException">Algun argumento es nulo.</exception>
+        /// 
+        public T Deserialize<T>(FormatReader reader, string name) {
+
+            return (T)Deserialize(reader, typeof(T), name);
         }
     }
 }

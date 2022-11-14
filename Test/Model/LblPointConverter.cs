@@ -1,7 +1,7 @@
 ﻿using System.Globalization;
 using NetSerializer.V5.Formatters.Xml.ValueConverters;
 
-namespace Test.Types {
+namespace Test.Model {
 
     public sealed class LblPointConverter: IXmlValueConverter {
 

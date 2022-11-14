@@ -6,7 +6,16 @@ namespace NetSerializer.V5.Formatters {
     /// Clase base pels lectors de dades.
     /// </summary>
     /// 
-    public abstract class FormatReader {
+    public abstract class FormatReader: IDisposable {
+
+        /// <summary>
+        /// Implementa el patro 'Dispose'.
+        /// </summary>
+        /// 
+        public void Dispose() {
+
+            Close();
+        }
 
         /// <summary>
         /// Comprova si el tipus lleigir com un valor simple.
@@ -34,13 +43,13 @@ namespace NetSerializer.V5.Formatters {
         /// <param name="name">El nom.</param>
         /// <returns>El resultat.</returns>
         /// 
-        public abstract ReadObjectResult ReadObjectStart(string name);
+        public abstract ReadObjectResult ReadObjectHeader(string name);
 
         /// <summary>
         /// Llegeix el final d'un objecte
         /// </summary>
         /// 
-        public abstract void ReadObjectEnd();
+        public abstract void ReadObjectTail();
 
         /// <summary>
         /// Llegaix l'inici d'un struct,
@@ -48,13 +57,13 @@ namespace NetSerializer.V5.Formatters {
         /// <param name="name">El nom del node.</param>
         /// <returns>El resultat.</returns>
         /// 
-        public abstract ReadArrayResult ReadArrayStart(string name);
+        public abstract ReadArrayResult ReadArrayHeader(string name);
 
         /// <summary>
         /// Llegeix el final d'un array
         /// </summary>
         /// 
-        public abstract void ReadArrayEnd();
+        public abstract void ReadArrayTail();
 
         /// <summary>
         /// Llegeix l'inici d'un struct.
@@ -62,13 +71,13 @@ namespace NetSerializer.V5.Formatters {
         /// <param name="name">El nom del node.</param>
         /// <param name="type">El tipus.</param>
         /// 
-        public abstract void ReadStructStart(string name, Type type);
+        public abstract void ReadStructHeader(string name, Type type);
 
         /// <summary>
         /// Llegeix el final d'un struct
         /// </summary>
         /// 
-        public abstract void ReadStructEnd();
+        public abstract void ReadStructTail();
 
         /// <summary>
         /// Inicia el proces de lectura de dades.

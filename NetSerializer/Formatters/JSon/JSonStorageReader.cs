@@ -8,25 +8,25 @@ namespace NetSerializer.V5.Formatters.JSon {
             throw new System.NotImplementedException();
         }
 
-        public override ReadObjectResult ReadObjectStart(string name) {
+        public override ReadObjectResult ReadObjectHeader(string name) {
             throw new System.NotImplementedException();
         }
 
-        public override void ReadObjectEnd() {
+        public override void ReadObjectTail() {
             throw new System.NotImplementedException();
         }
 
-        public override void ReadStructStart(string name, Type type) {
+        public override void ReadStructHeader(string name, Type type) {
         }
 
-        public override void ReadStructEnd() {
+        public override void ReadStructTail() {
         }
 
-        public override ReadArrayResult ReadArrayStart(string name) {
+        public override ReadArrayResult ReadArrayHeader(string name) {
             throw new System.NotImplementedException();
         }
 
-        public override void ReadArrayEnd() {
+        public override void ReadArrayTail() {
             throw new System.NotImplementedException();
         }
 

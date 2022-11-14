@@ -1,6 +1,6 @@
 ﻿using NetSerializer.V5.Formatters.Xml.Attributes;
 
-namespace Test.Types {
+namespace Test.Model {
 
     /// <summary>
     /// Clase que representa un punt.

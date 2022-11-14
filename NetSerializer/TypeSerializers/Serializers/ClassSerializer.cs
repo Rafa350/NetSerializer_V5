@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using NetSerializer.V5.Descriptors;
 using NetSerializer.V5.Formatters;
 
@@ -11,49 +10,33 @@ namespace NetSerializer.V5.TypeSerializers.Serializers {
     /// 
     public class ClassSerializer: TypeSerializer {
 
-        private static readonly List<object> _objList = new List<object>();
-
         /// <inheritdoc/>
         /// 
-        public override bool CanSerialize(Type type) {
-
-            if (type == null)
-                throw new ArgumentNullException(nameof(type));
+        public override bool CanProcess(Type type) {
 
             return type.IsClass;
         }
 
-        /// <inheritdoc/>
-        ///
-        public override void Initialize() {
-
-            _objList.Clear();
-        }
-
         /// <summary>
-        /// Comprova si es pot serialitzar la propietat.
+        /// Indica si es pot procesar la propietat.
         /// </summary>
-        /// <param name="propertyDescriptor">Descriptor de la propietat.</param>
-        /// <returns>TRue si es serializable.</returns>
+        /// <param name="propertyDescriptor">Descreiptor de la propietat.</param>
+        /// <returns>True en cas afirmatiu.</returns>
         /// 
-        public virtual bool CanSerializeProperty(PropertyDescriptor propertyDescriptor) {
+        protected virtual bool CanProcessProperty(PropertyDescriptor propertyDescriptor) {
 
             return propertyDescriptor.CanRead && propertyDescriptor.CanWrite;
         }
 
         /// <inheritdoc/>
         /// 
-        public override void Serialize(FormatWriter writer, string name, Type type, object obj) {
+        public override void Serialize(SerializationContext context, string name, Type type, object obj) {
 
-            if (writer == null)
-                throw new ArgumentNullException(nameof(writer));
-
-            if (type == null)
-                throw new ArgumentNullException(nameof(type));
-
-            if (!CanSerialize(type))
+            if (!CanProcess(type))
                 throw new InvalidOperationException(
                     String.Format("No es posible serializar el tipo '{0}'.", type.ToString()));
+
+            var writer = context.Writer;
 
             if (obj == null)
                 writer.WriteNull(name);
@@ -63,15 +46,13 @@ namespace NetSerializer.V5.TypeSerializers.Serializers {
                     throw new InvalidOperationException(
                         String.Format("El objeto a serializar no hereda del tipo '{0}'.", type.ToString()));
 
-                int id = _objList.IndexOf(obj);
+                int id = context.GetObjectId(obj);
                 if (id == -1) {
-                    _objList.Add(obj);
-                    id = _objList.Count - 1;
-                    writer.WriteObjectStart(name, obj, id);
-                    SerializeObject(writer, obj);
-                    writer.WriteObjectEnd();
+                    id = context.RegisterObject(obj);
+                    writer.WriteObjectHeader(name, obj, id);
+                    SerializeObject(context, obj);
+                    writer.WriteObjectTail();
                 }
-
                 else
                     writer.WriteObjectReference(name, id);
             }
@@ -79,84 +60,86 @@ namespace NetSerializer.V5.TypeSerializers.Serializers {
 
         /// <inheritdoc/>
         /// 
-        public override object Deserialize(FormatReader reader, string name, Type type) {
+        public override void Deserialize(DeserializationContext context, string name, Type type, out object obj) {
 
-            if (reader == null)
-                throw new ArgumentNullException(nameof(reader));
-
-            if (type == null)
-                throw new ArgumentNullException(nameof(type));
-
-            if (!CanSerialize(type))
+            if (!CanProcess(type))
                 throw new InvalidOperationException(
                     String.Format("No es posible deserializar el tipo '{0}'.", type.ToString()));
 
-            ReadObjectResult result = reader.ReadObjectStart(name);
-            switch (result.ResultType) {
+            var reader = context.Reader;
 
-                default:
-                case ReadObjectResultType.Null:
-                    return null;
+            ReadObjectResult result = reader.ReadObjectHeader(name);
+            if (result.ResultType == ReadObjectResultType.Object) {
 
-                case ReadObjectResultType.Object:
+                Type objectType = result.ObjectType;
 
-                    Type objectType = result.ObjectType;
+                if (!type.IsAssignableFrom(objectType))
+                    throw new InvalidOperationException(
+                        String.Format("El objecto de tipo '{0}', a deserializar no hereda del tipo '{1}'.", objectType.ToString(), type.ToString()));
 
-                    if (!type.IsAssignableFrom(objectType))
-                        throw new InvalidOperationException(
-                            String.Format("El objecto de tipo '{0}', a deserializar no hereda del tipo '{1}'.", objectType.ToString(), type.ToString()));
-
-                    object obj = CreateObject(objectType);
-                    _objList.Add(obj);
-                    DeserializeObject(reader, obj);
-                    reader.ReadObjectEnd();
-                    return obj;
-
-                case ReadObjectResultType.Reference:
-                    return _objList[result.ObjectId];
+                obj = CreateObject(context, objectType);
+                context.Register(obj);
+                DeserializeObject(context, obj);
+                reader.ReadObjectTail();
             }
+         
+            else if (result.ResultType == ReadObjectResultType.Reference) 
+                obj = context.GetObject(result.ObjectId);
+            
+            else
+                obj = null;
         }
 
         /// <summary>
         /// Crea una instancia del objecte. Necesita un constructor sense parametres.
         /// </summary>
-        /// <param name="objectType">El tuipus d'objecte.</param>
+        /// <param name="context">El context de deserialitzacio.</param>
+        /// <param name="type">El tipus d'objecte.</param>
         /// <returns>El objecte.</returns>
         /// 
-        protected virtual object CreateObject(Type objectType) {
+        protected virtual object CreateObject(DeserializationContext context, Type type) {
 
-            return Activator.CreateInstance(objectType);
+            var typeDescriptor = TypeDescriptorProvider.Instance.GetDescriptor(type);
+            if (typeDescriptor.CanCreate)
+                return typeDescriptor.Create(context);
+            else
+                return Activator.CreateInstance(type);
         }
 
         /// <summary>
         /// Serialitzacio per defecte del objecte.
         /// </summary>
-        /// <param name="writer">El objecte per escriure dades.</param>
+        /// <param name="context">El context de resialitzacio.</param>
         /// <param name="obj">El objecte a serialitzar.</param>
         /// 
-        protected virtual void SerializeObject(FormatWriter writer, object obj) {
+        protected virtual void SerializeObject(SerializationContext context, object obj) {
 
             var type = obj.GetType();
             var typeDescriptor = TypeDescriptorProvider.Instance.GetDescriptor(type);
+            
+            if (typeDescriptor.CanSerialize)
+                typeDescriptor.Serialize(context, obj);
 
-            foreach (var propertyDescriptor in typeDescriptor.PropertyDescriptors)
-                if (CanSerializeProperty(propertyDescriptor))
-                    SerializeProperty(writer, obj, propertyDescriptor);
+            else {
+                foreach (var propertyDescriptor in typeDescriptor.PropertyDescriptors)
+                    if (CanProcessProperty(propertyDescriptor))
+                        SerializeProperty(context, obj, propertyDescriptor);
+            }
         }
 
         /// <summary>
         /// Serialitzacio per defecte d'una propietat. Nomes pot serialitzar les
         /// propietats amb 'getter'
         /// </summary>
-        /// <param name="writer">El objecte per escriure dades.</param>
+        /// <param name="context">El context de serialitzacio.</param>
         /// <param name="obj">El objecte a serialitzar.</param>
         /// <param name="propertyDescriptor">La propietat a serialitzar</param>
         /// 
-        protected virtual void SerializeProperty(FormatWriter writer, object obj, PropertyDescriptor propertyDescriptor) {
+        protected virtual void SerializeProperty(SerializationContext context, object obj, PropertyDescriptor propertyDescriptor) {
 
             if (propertyDescriptor.CanRead) {
-                var serializer = TypeSerializerProvider.Instance.GetSerializer(propertyDescriptor.Type);
-                serializer.Serialize(writer, propertyDescriptor.Name, propertyDescriptor.Type, propertyDescriptor.GetValue(obj));
+                var serializer = context.GetTypeSerializer(propertyDescriptor.Type);
+                serializer.Serialize(context, propertyDescriptor.Name, propertyDescriptor.Type, propertyDescriptor.GetValue(obj));
             }
         }
 
@@ -166,14 +149,19 @@ namespace NetSerializer.V5.TypeSerializers.Serializers {
         /// <param name="reader">Objecte per la lectura de dades.</param>
         /// <param name="obj">El objecte a deserialitzar.</param>
         /// 
-        protected virtual void DeserializeObject(FormatReader reader, object obj) {
+        protected virtual void DeserializeObject(DeserializationContext context, object obj) {
 
             var type = obj.GetType();
             var typeDescriptor = TypeDescriptorProvider.Instance.GetDescriptor(type);
-
-            foreach (var propertyDescriptor in typeDescriptor.PropertyDescriptors)
-                if (CanSerializeProperty(propertyDescriptor))
-                    DeserializeProperty(reader, obj, propertyDescriptor);
+            
+            if (typeDescriptor.CanDeserialize) 
+                typeDescriptor.Deserialize(context, obj);
+            
+            else {
+                foreach (var propertyDescriptor in typeDescriptor.PropertyDescriptors)
+                    if (CanProcessProperty(propertyDescriptor))
+                        DeserializeProperty(context, obj, propertyDescriptor);
+            }
         }
 
         /// <summary>
@@ -183,11 +171,11 @@ namespace NetSerializer.V5.TypeSerializers.Serializers {
         /// <param name="obj">L'objecte.</param>
         /// <param name="propertyDescriptor">El descriptor de la propietat.</param>
         /// 
-        protected virtual void DeserializeProperty(FormatReader reader, object obj, PropertyDescriptor propertyDescriptor) {
+        protected virtual void DeserializeProperty(DeserializationContext context, object obj, PropertyDescriptor propertyDescriptor) {
 
             if (propertyDescriptor.CanWrite) {
-                var serializer = TypeSerializerProvider.Instance.GetSerializer(propertyDescriptor.Type);
-                var value = serializer.Deserialize(reader, propertyDescriptor.Name, propertyDescriptor.Type);
+                var serializer = context.GetTypeSerializer(propertyDescriptor.Type);
+                serializer.Deserialize(context, propertyDescriptor.Name, propertyDescriptor.Type, out object value);
                 propertyDescriptor.SetValue(obj, value);
             }
         }

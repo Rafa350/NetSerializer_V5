@@ -12,8 +12,6 @@ namespace NetSerializer.V5.TypeSerializers {
     /// 
     public sealed class TypeSerializerProvider: ITypeSerializerProvider {
 
-        private static TypeSerializerProvider _instance;
-
         private readonly List<ITypeSerializer> _serializerSet = new List<ITypeSerializer>();
         private readonly Dictionary<Type, ITypeSerializer> _serializerCache = new Dictionary<Type, ITypeSerializer>();
 
@@ -21,15 +19,10 @@ namespace NetSerializer.V5.TypeSerializers {
         /// Constructor de la clase.
         /// </summary>
         /// 
-        private TypeSerializerProvider() {
-        }
+        public TypeSerializerProvider() {
 
-        /// <inheritdoc/>
-        /// 
-        public void Initialize() {
-
-            foreach (var serializer in _serializerSet)
-                serializer.Initialize();
+            AddCustomSerializers();
+            AddDefaultSerializers();
         }
 
         /// <summary>
@@ -95,11 +88,11 @@ namespace NetSerializer.V5.TypeSerializers {
         /// serializaor registrado para el tipo de objeto, o si no es posible 
         /// instanciar el serializador.</exception>
         /// 
-        public ITypeSerializer GetSerializer(Type type) {
+        public ITypeSerializer GetTypeSerializer(Type type) {
 
             if (!_serializerCache.TryGetValue(type, out ITypeSerializer serializer)) {
 
-                serializer = _serializerSet.Find(item => item.CanSerialize(type));
+                serializer = _serializerSet.Find(item => item.CanProcess(type));
                 if (serializer == null)
                     throw new InvalidOperationException(
                         String.Format(
@@ -110,21 +103,6 @@ namespace NetSerializer.V5.TypeSerializers {
             }
 
             return serializer;
-        }
-
-        /// <summary>
-        /// Retorna una instancia unica del objecte.
-        /// </summary>
-        /// 
-        public static TypeSerializerProvider Instance {
-            get {
-                if (_instance == null) {
-                    _instance = new TypeSerializerProvider();
-                    _instance.AddCustomSerializers();
-                    _instance.AddDefaultSerializers();
-                }
-                return _instance;
-            }
         }
     }
 }

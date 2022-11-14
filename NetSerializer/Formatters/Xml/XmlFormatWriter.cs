@@ -19,6 +19,7 @@ namespace NetSerializer.V5.Formatters.Xml {
         private readonly XmlFormatWriterSettings _settings;
         private readonly Stream _stream;
         private XmlWriter _writer;
+        private bool _closed = false;
 
         /// <summary>
         /// Constructor de la clase.
@@ -30,6 +31,9 @@ namespace NetSerializer.V5.Formatters.Xml {
 
             _stream = stream ?? throw new ArgumentNullException(nameof(stream));
             _settings = settings ?? new XmlFormatWriterSettings();
+
+            if (!stream.CanWrite)
+                throw new InvalidOperationException("Es stream especificado no es de escritura.");
         }
 
         /// <summary>
@@ -47,7 +51,7 @@ namespace NetSerializer.V5.Formatters.Xml {
                 Indent = _settings.Indentation > 0,
                 IndentChars = new String(' ', _settings.Indentation),
                 CheckCharacters = true,
-                CloseOutput = true
+                CloseOutput = false
             };
             _writer = XmlWriter.Create(_stream, writerSettings);
 
@@ -67,10 +71,13 @@ namespace NetSerializer.V5.Formatters.Xml {
         /// 
         public override void Close() {
 
-            _writer.WriteEndElement();
-            _writer.WriteEndElement();
-            _writer.WriteEndDocument();
-            _writer.Close();
+            if (!_closed) {
+                _writer.WriteEndElement();
+                _writer.WriteEndElement();
+                _writer.WriteEndDocument();
+                _writer.Close();
+                _closed = true;
+            }
         }
 
         /// <inheritdoc/>
@@ -89,7 +96,7 @@ namespace NetSerializer.V5.Formatters.Xml {
 
         /// <inheritdoc/>
         /// 
-        public override void WriteValueStart(string name, Type type) {
+        public override void WriteValue(string name, object value) {
 
             if (_settings.UseNames && String.IsNullOrEmpty(name))
                 throw new ArgumentNullException(nameof(name));
@@ -97,20 +104,10 @@ namespace NetSerializer.V5.Formatters.Xml {
             _writer.WriteStartElement("value");
             if (_settings.UseNames)
                 _writer.WriteAttribute("name", name);
-        }
-
-        /// <inheritdoc/>
-        /// 
-        public override void WriteValueEnd() {
-
-            _writer.WriteEndElement();
-        }
-
-        /// <inheritdoc/>
-        /// 
-        public override void WriteValue(object value) {
 
             _writer.WriteValue(ConvertToString(value));
+
+            _writer.WriteEndElement();
         }
 
         /// <inheritdoc/>
@@ -142,7 +139,7 @@ namespace NetSerializer.V5.Formatters.Xml {
 
         /// <inheritdoc/>
         /// 
-        public override void WriteObjectStart(string name, object obj, int id) {
+        public override void WriteObjectHeader(string name, object obj, int id) {
 
             if (_settings.UseNames && String.IsNullOrEmpty(name))
                 throw new ArgumentNullException(nameof(name));
@@ -155,7 +152,7 @@ namespace NetSerializer.V5.Formatters.Xml {
                 _writer.WriteAttribute("name", name);
 
             var type = obj.GetType();
-            var typeName = String.Format("{0}, {1}", type.FullName, type.Assembly.GetName().Name);
+            var typeName = GetTypeName(type);
 
             _writer.WriteAttribute("type", typeName);
             _writer.WriteAttribute("id", id);
@@ -163,14 +160,14 @@ namespace NetSerializer.V5.Formatters.Xml {
 
         /// <inheritdoc/>
         /// 
-        public override void WriteObjectEnd() {
+        public override void WriteObjectTail() {
 
             _writer.WriteEndElement();
         }
 
         /// <inheritdoc/>
         /// 
-        public override void WriteStructStart(string name, object value) {
+        public override void WriteStructHeader(string name, object value) {
 
             if (_settings.UseNames && String.IsNullOrEmpty(name))
                 throw new ArgumentNullException(nameof(name));
@@ -191,14 +188,14 @@ namespace NetSerializer.V5.Formatters.Xml {
 
         /// <inheritdoc/>
         /// 
-        public override void WriteStructEnd() {
+        public override void WriteStructTail() {
 
             _writer.WriteEndElement();
         }
 
         /// <inheritdoc/>
         /// 
-        public override void WriteArrayStart(string name, Array array) {
+        public override void WriteArrayHeader(string name, Array array) {
 
             if (_settings.UseNames && String.IsNullOrEmpty(name))
                 throw new ArgumentNullException(nameof(name));
@@ -224,6 +221,18 @@ namespace NetSerializer.V5.Formatters.Xml {
 
             _writer.WriteAttribute("bound", sb.ToString());
             _writer.WriteAttribute("count", count);
+        }
+
+        /// <inheritdoc/>
+        /// 
+        public override void WriteArrayTail() {
+
+            _writer.WriteEndElement();
+        }
+
+        private static string GetTypeName(Type type) {
+
+            return String.Format("{0}, {1}", type.FullName, type.Assembly.GetName().Name);
         }
 
         /// <summary>
@@ -260,13 +269,6 @@ namespace NetSerializer.V5.Formatters.Xml {
                     throw new InvalidOperationException(
                         String.Format("No se puede convertir el valor '{0} de tipo '{1}' a string.", obj, type.FullName));
             }
-        }
-
-        /// <inheritdoc/>
-        /// 
-        public override void WriteArrayEnd() {
-
-            _writer.WriteEndElement();
         }
     }
 }

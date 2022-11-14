@@ -1,7 +1,7 @@
 ﻿using NetSerializer.V5;
 using NetSerializer.V5.Attributes;
 using NetSerializer.V5.Formatters.Xml;
-using Test.Types;
+using Test.Model;
 
 namespace Test {
 
@@ -25,6 +25,7 @@ namespace Test {
         private char _charValue = 'G';
         private X _x;
         private Sex _sex = Sex.Female;
+        private object _object = null;
 
         public TestClass() {
         }
@@ -58,6 +59,11 @@ namespace Test {
             get => _sex;
             set => _sex = value;
         }
+
+        public object O {
+            get => _object;
+            set => _object = value;
+        }
     }
 
     class Program {
@@ -72,28 +78,23 @@ namespace Test {
 
         private static void XmlSerialize(string fileName, object obj) {
 
-            var stream = new FileStream(fileName, FileMode.Create, FileAccess.Write, FileShare.None);
-            var writer = new XmlFormatWriter(stream, null);
-            var s = new Serializer(writer, 100);
-            try {
-                s.Serialize(obj, "root");
-            }
-            finally {
-                s.Close();
+            var serializer = new Serializer();
+
+            using (var stream = new FileStream(fileName, FileMode.Create, FileAccess.Write, FileShare.None)) {
+                using (var writer = new XmlFormatWriter(stream, null)) {
+                    serializer.Serialize(writer, obj);
+                }
             }
         }
 
         private static object XmlDeserialize(string fileName) {
 
-            var stream = new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.None);
-            var reader = new XmlFormatReader(stream, null);
+            var serializer = new Serializer();
 
-            var d = new Deserializer(reader);
-            try {
-                return d.Deserialize(typeof(TestClass), "root");
-            }
-            finally {
-                d.Close();
+            using (var stream = new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.None)) {
+                using (var reader = new XmlFormatReader(stream, null)) {
+                    return serializer.Deserialize(reader, typeof(TestClass), "root");
+                }
             }
         }
     }

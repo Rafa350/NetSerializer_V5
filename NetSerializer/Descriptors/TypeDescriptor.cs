@@ -8,7 +8,7 @@ using NetSerializer.V5.Attributes;
 namespace NetSerializer.V5.Descriptors {
 
     /// <summary>
-    /// Desriptor d'un tipus.
+    /// Descriptor d'un tipus.
     /// </summary>
     /// 
     public sealed class TypeDescriptor {
@@ -16,7 +16,10 @@ namespace NetSerializer.V5.Descriptors {
         private readonly Type _type;
         private readonly TypeConverter _customConverter = null;
         private readonly TypeConverter _defaultConverter = null;
-        private List<PropertyDescriptor> _propertyDescriptors = null;
+        private readonly MethodInfo _createMethodInfo;
+        private readonly MethodInfo _serializeMethodInfo;
+        private readonly MethodInfo _deserializeMethodInfo;
+        private readonly List<PropertyDescriptor> _propertyDescriptors = null;
 
         /// <summary>
         /// Contructor del objecte.
@@ -36,6 +39,12 @@ namespace NetSerializer.V5.Descriptors {
             var typeConverterAttribute = type.GetCustomAttribute<TypeConverterAttribute>();
             if (typeConverterAttribute != null)
                 _customConverter = (TypeConverter)Activator.CreateInstance(Type.GetType(typeConverterAttribute.ConverterTypeName));
+
+            // Obte els metodes de creacio, serialitzacio i deserialitzacio
+            //
+            _createMethodInfo = type.GetMethod("Create", BindingFlags.Static | BindingFlags.Public, new Type[] { typeof(DeserializationContext) });
+            _serializeMethodInfo = type.GetMethod("Serialize", BindingFlags.Instance | BindingFlags.Public, new Type[] { typeof(SerializationContext) });
+            _deserializeMethodInfo = type.GetMethod("Deserialize", BindingFlags.Instance | BindingFlags.Public, new Type[] { typeof(DeserializationContext) });
 
             // Obte les propietats, i si son serialitzables, les afegeix a la llista.
             //
@@ -73,6 +82,21 @@ namespace NetSerializer.V5.Descriptors {
                 _propertyDescriptors.Sort((a, b) => String.Compare(a.Name, b.Name));
         }
 
+        public object Create(DeserializationContext context) {
+
+            return _createMethodInfo.Invoke(null, new object[] { context });
+        }
+
+        public void Serialize(SerializationContext context, object obj) {
+
+            _serializeMethodInfo.Invoke(obj, new object[] { context });
+        }
+
+        public void Deserialize(DeserializationContext context, object obj) {
+
+            _deserializeMethodInfo.Invoke(obj, new object[] { context });
+        }
+
         /// <summary>
         /// Obte el tipus que representa aquest descriptor.
         /// </summary>
@@ -107,6 +131,27 @@ namespace NetSerializer.V5.Descriptors {
         /// 
         public IEnumerable<PropertyDescriptor> PropertyDescriptors =>
             _propertyDescriptors == null ? Enumerable.Empty<PropertyDescriptor>() : _propertyDescriptors;
+
+        /// <summary>
+        /// Indica si es por crear el objecte.
+        /// </summary>
+        /// 
+        public bool CanCreate =>
+            _createMethodInfo != null;
+
+        /// <summary>
+        /// Indica si es pot serialitzar el objecte.
+        /// </summary>
+        /// 
+        public bool CanSerialize =>
+            _serializeMethodInfo != null;
+
+        /// <summary>
+        /// Indica si es pot deserialitzar el objecte.
+        /// </summary>
+        /// 
+        public bool CanDeserialize =>
+            _deserializeMethodInfo != null;
     }
 }
 

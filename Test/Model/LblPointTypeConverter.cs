@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel;
 using System.Globalization;
 
-namespace Test.Types {
+namespace Test.Model {
 
     public sealed class LblPointTypeConverter: TypeConverter {
 

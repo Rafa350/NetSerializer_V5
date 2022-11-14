@@ -28,6 +28,7 @@ namespace NetSerializer.V5.Formatters.Xml {
         private bool _useNames = false;
         private bool _useMeta = false;
         private bool _encodedStrings = false;
+        private bool _closed = false;
 
         /// <summary>
         /// Contructor del objecte.
@@ -39,6 +40,9 @@ namespace NetSerializer.V5.Formatters.Xml {
 
             _stream = stream ?? throw new ArgumentNullException(nameof(stream));
             _settings = settings ?? new XmlFormatReaderSettings();
+
+            if (!stream.CanRead)
+                throw new InvalidOperationException("Es stream especificado no es de lectura.");
         }
 
         /// <inheritdoc/>
@@ -114,7 +118,10 @@ namespace NetSerializer.V5.Formatters.Xml {
         /// 
         public override void Close() {
 
-            _reader.Close();
+            if (!_closed) {
+                _reader.Close();
+                _closed = true;
+            }
         }
 
         /// <inheritdoc/>
@@ -154,7 +161,7 @@ namespace NetSerializer.V5.Formatters.Xml {
 
         /// <inheritdoc/>
         /// 
-        public override ReadObjectResult ReadObjectStart(string name) {
+        public override ReadObjectResult ReadObjectHeader(string name) {
 
             _reader.Read();
 
@@ -198,14 +205,14 @@ namespace NetSerializer.V5.Formatters.Xml {
 
         /// <inheritdoc/>
         /// 
-        public override void ReadObjectEnd() {
+        public override void ReadObjectTail() {
 
             _reader.Read();
         }
 
         /// <inheritdoc/>
         /// 
-        public override void ReadStructStart(string name, Type type) {
+        public override void ReadStructHeader(string name, Type type) {
 
             _reader.Read();
 
@@ -215,14 +222,14 @@ namespace NetSerializer.V5.Formatters.Xml {
 
         /// <inheritdoc/>
         /// 
-        public override void ReadStructEnd() {
+        public override void ReadStructTail() {
 
             _reader.Read();
         }
 
         /// <inheritdoc/>
         /// 
-        public override ReadArrayResult ReadArrayStart(string name) {
+        public override ReadArrayResult ReadArrayHeader(string name) {
 
             _reader.Read();
 
@@ -260,7 +267,7 @@ namespace NetSerializer.V5.Formatters.Xml {
 
         /// <inheritdoc/>
         /// 
-        public override void ReadArrayEnd() {
+        public override void ReadArrayTail() {
 
             _reader.Read();
         }

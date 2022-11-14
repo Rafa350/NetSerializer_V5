@@ -1,5 +1,4 @@
 ﻿using System;
-using NetSerializer.V5.Formatters;
 
 namespace NetSerializer.V5.TypeSerializers.Serializers {
 
@@ -11,57 +10,43 @@ namespace NetSerializer.V5.TypeSerializers.Serializers {
 
         /// <inheritdoc/>
         /// 
-        public override bool CanSerialize(Type type) {
-
-            if (type == null)
-                throw new ArgumentNullException(nameof(type));
+        public override bool CanProcess(Type type) {
 
             return
                 type.IsPrimitive ||
                 type.IsEnum ||
                 (type == typeof(string)) ||
                 (type == typeof(DateTime)) ||
+                (type == typeof(TimeSpan)) ||
+                (type == typeof(Guid)) ||
                 (type == typeof(decimal));
         }
 
         /// <inheritdoc/>
         /// 
-        public override void Serialize(FormatWriter writer, string name, Type type, object obj) {
+        public override void Serialize(SerializationContext context, string name, Type type, object obj) {
 
-            if (writer == null)
-                throw new ArgumentNullException(nameof(writer));
-
-            if (type == null)
-                throw new ArgumentNullException(nameof(type));
-
-            if (!CanSerialize(type))
+            if (!CanProcess(type))
                 throw new InvalidOperationException(
                     String.Format("No es posible serializar el tipo '{0}'.", type.ToString()));
 
+            var writer = context.Writer;
             if (obj == null)
                 writer.WriteNull(name);
-            else {
-                writer.WriteValueStart(name, type);
-                writer.WriteValue(obj);
-                writer.WriteValueEnd();
-            }
+            else 
+                writer.WriteValue(name, obj);
         }
 
         /// <inheritdoc/>
         /// 
-        public override object Deserialize(FormatReader reader, string name, Type type) {
+        public override void Deserialize(DeserializationContext context, string name, Type type, out object obj) {
 
-            if (reader == null)
-                throw new ArgumentNullException(nameof(reader));
-
-            if (type == null)
-                throw new ArgumentNullException(nameof(type));
-
-            if (!CanSerialize(type))
+            if (!CanProcess(type))
                 throw new InvalidOperationException(
                     String.Format("No es posible deserializar el tipo '{0}'.", type.ToString()));
 
-            return reader.ReadValue(name, type);
+            var reader = context.Reader;
+            obj = reader.ReadValue(name, type);
         }
     }
 }

@@ -1,5 +1,4 @@
 ﻿using System;
-using NetSerializer.V5.Formatters;
 
 namespace NetSerializer.V5.TypeSerializers {
 
@@ -11,19 +10,14 @@ namespace NetSerializer.V5.TypeSerializers {
 
         /// <inheritdoc/>
         /// 
-        public abstract bool CanSerialize(Type type);
+        public abstract bool CanProcess(Type type);
 
         /// <inheritdoc/>
         /// 
-        public virtual void Initialize() {
-        }
+        public abstract void Serialize(SerializationContext context, string name, Type type, object obj);
 
         /// <inheritdoc/>
         /// 
-        public abstract void Serialize(FormatWriter write, string name, Type type, object obj);
-
-        /// <inheritdoc/>
-        /// 
-        public abstract object Deserialize(FormatReader reader, string name, Type type);
+        public abstract void Deserialize(DeserializationContext context, string name, Type type, out object obj);
     }
 }
