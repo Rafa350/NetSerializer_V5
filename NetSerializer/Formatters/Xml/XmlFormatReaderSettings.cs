@@ -4,15 +4,15 @@ namespace NetSerializer.V5.Formatters.Xml {
 
     public sealed class XmlFormatReaderSettings {
 
-        public CultureInfo Culture;
-        public bool CheckNames;
-        public bool UseSchemaValidation;
-        public XmlFormatReaderPreprocessor Preprocesor;
+        public bool CheckNames { get; set; }
+        public bool UseSchemaValidation { get; set; }
+        public bool CompactMode { get; set; }
+        public XmlFormatReaderPreprocessor Preprocesor { get; set; }
 
         public XmlFormatReaderSettings() {
 
-            Culture = CultureInfo.InvariantCulture;
             CheckNames = true;
+            CompactMode = false;
             UseSchemaValidation = true;
             Preprocesor = null;
         }

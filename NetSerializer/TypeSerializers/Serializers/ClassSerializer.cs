@@ -14,7 +14,7 @@ namespace NetSerializer.V5.TypeSerializers.Serializers {
         /// 
         public override bool CanProcess(Type type) {
 
-            return type.IsClass;
+            return type.IsClass && !type.IsArray;
         }
 
         /// <summary>
@@ -139,7 +139,8 @@ namespace NetSerializer.V5.TypeSerializers.Serializers {
 
             if (propertyDescriptor.CanRead) {
                 var serializer = context.GetTypeSerializer(propertyDescriptor.Type);
-                serializer.Serialize(context, propertyDescriptor.Name, propertyDescriptor.Type, propertyDescriptor.GetValue(obj));
+                var value = propertyDescriptor.GetValue(obj);
+                serializer.Serialize(context, propertyDescriptor.Name, propertyDescriptor.Type, value);
             }
         }
 

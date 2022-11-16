@@ -82,6 +82,7 @@ namespace NetSerializer.V5 {
 
                 var typeSerializer = context.GetTypeSerializer(type);
                 typeSerializer.Deserialize(context, name, type, out object obj);
+
                 return obj;
             }
             finally {

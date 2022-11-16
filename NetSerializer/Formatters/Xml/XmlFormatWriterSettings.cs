@@ -9,6 +9,7 @@ namespace NetSerializer.V5.Formatters.Xml {
         public bool UseMeta { get; set; }
         public int Indentation { get; set; }
         public bool EncodedStrings { get; set; }
+        public bool CompactMode { get; set; }
 
         public XmlFormatWriterSettings() {
 
@@ -17,6 +18,7 @@ namespace NetSerializer.V5.Formatters.Xml {
             Encoding = Encoding.UTF8;
             Indentation = 4;
             EncodedStrings = true;
+            CompactMode = false;
         }
     }
 }

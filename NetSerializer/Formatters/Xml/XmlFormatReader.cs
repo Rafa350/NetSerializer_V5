@@ -28,6 +28,7 @@ namespace NetSerializer.V5.Formatters.Xml {
         private bool _useNames = false;
         private bool _useMeta = false;
         private bool _encodedStrings = false;
+        private bool _compactMode = false;
         private bool _closed = false;
 
         /// <summary>
@@ -36,7 +37,7 @@ namespace NetSerializer.V5.Formatters.Xml {
         /// <param name="stream">Stream d'entrada.</param>
         /// <param name="settings">Parametres de configuracio. Si es null, s'utilitza la configuracio per defecte.</param>
         /// 
-        public XmlFormatReader(Stream stream, XmlFormatReaderSettings settings) {
+        public XmlFormatReader(Stream stream, XmlFormatReaderSettings settings = null) {
 
             _stream = stream ?? throw new ArgumentNullException(nameof(stream));
             _settings = settings ?? new XmlFormatReaderSettings();
@@ -95,6 +96,8 @@ namespace NetSerializer.V5.Formatters.Xml {
                     _serializerVersion = XmlConvert.ToInt32(value);
                 if (attributes.TryGetValue("useNames", out value))
                     _useNames = XmlConvert.ToBoolean(value);
+                if (attributes.TryGetValue("compactMode", out value))
+                    _compactMode = XmlConvert.ToBoolean(value);
                 if (attributes.TryGetValue("useMeta", out value))
                     _useMeta = XmlConvert.ToBoolean(value);
                 if (attributes.TryGetValue("encodeStrings", out value))
@@ -143,7 +146,7 @@ namespace NetSerializer.V5.Formatters.Xml {
 
             _reader.Read();
 
-            if (_reader.Name == "null")
+            if (_reader.Name == (_compactMode ? "n" : "null"))
                 return null;
 
             else {
@@ -165,12 +168,12 @@ namespace NetSerializer.V5.Formatters.Xml {
 
             _reader.Read();
 
-            if (_reader.Name == "null")
+            if (_reader.Name == (_compactMode ? "n" : "null"))
                 return new ReadObjectResult() {
                     ResultType = ReadObjectResultType.Null
                 };
 
-            else if (_reader.Name == "object") {
+            else if (_reader.Name == (_compactMode ? "o" : "object")) {
 
                 var attributes = _reader.GetAttributes();
 
@@ -185,7 +188,7 @@ namespace NetSerializer.V5.Formatters.Xml {
                 };
             }
 
-            else if (_reader.Name == "reference") {
+            else if (_reader.Name == (_compactMode ? "r" : "reference")) {
 
                 var attributes = _reader.GetAttributes();
 
@@ -216,7 +219,7 @@ namespace NetSerializer.V5.Formatters.Xml {
 
             _reader.Read();
 
-            if (_reader.Name != "struct")
+            if (_reader.Name != (_compactMode ? "s" : "struct"))
                 throw new InvalidDataException("Se esperaba 'struct'.");
         }
 
@@ -233,12 +236,12 @@ namespace NetSerializer.V5.Formatters.Xml {
 
             _reader.Read();
 
-            if (_reader.Name == "null")
+            if (_reader.Name == (_compactMode ? "n" : "null"))
                 return new ReadArrayResult() {
                     ResultType = ReadArrayResultType.Null
                 };
 
-            else if (_reader.Name == "array") {
+            else if (_reader.Name == (_compactMode ? "a" : "array")) {
 
                 var attributes = _reader.GetAttributes();
 

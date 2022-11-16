@@ -1,4 +1,5 @@
-﻿using NetSerializer.V5;
+﻿using System.Diagnostics;
+using NetSerializer.V5;
 using NetSerializer.V5.Attributes;
 using NetSerializer.V5.Formatters.Xml;
 using Test.Model;
@@ -24,8 +25,11 @@ namespace Test {
         private string _stringValue = "abcd";
         private char _charValue = 'G';
         private X _x;
+        private int[] _z = new int[] { 100, 200, 300 };
         private Sex _sex = Sex.Female;
         private object _object = null;
+        private int[] _data = new int[10];
+        private List<int> _ints = new List<int>() { 1, 2, 3, 4, 5, 6 };
 
         public TestClass() {
         }
@@ -45,14 +49,29 @@ namespace Test {
             set => _point = value;
         }
 
+        public int this[int index] {
+            get => _data[index];
+            set => _data[index] = value;
+        }
+
         public DateTime Date {
             get => _date;
             set => _date = value;
         }
 
+        public List<int> Ints {
+            get => _ints;
+            set => _ints = value;
+        }
+
         public X X {
             get => _x;
             set => _x = value;
+        }
+
+        public int[] Z {
+            get => _z;
+            set => _z = value;
         }
 
         public Sex Sex {
@@ -81,7 +100,7 @@ namespace Test {
             var serializer = new Serializer();
 
             using (var stream = new FileStream(fileName, FileMode.Create, FileAccess.Write, FileShare.None)) {
-                using (var writer = new XmlFormatWriter(stream, null)) {
+                using (var writer = new XmlFormatWriter(stream)) {
                     serializer.Serialize(writer, obj);
                 }
             }
@@ -92,7 +111,7 @@ namespace Test {
             var serializer = new Serializer();
 
             using (var stream = new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.None)) {
-                using (var reader = new XmlFormatReader(stream, null)) {
+                using (var reader = new XmlFormatReader(stream)) {
                     return serializer.Deserialize(reader, typeof(TestClass), "root");
                 }
             }

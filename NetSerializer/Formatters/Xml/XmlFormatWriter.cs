@@ -27,7 +27,7 @@ namespace NetSerializer.V5.Formatters.Xml {
         /// <param name="stream">El stream d'escriptura.</param>
         /// <param name="settings">Parametres de configuracio.</param>
         /// 
-        public XmlFormatWriter(Stream stream, XmlFormatWriterSettings settings) {
+        public XmlFormatWriter(Stream stream, XmlFormatWriterSettings settings = null) {
 
             _stream = stream ?? throw new ArgumentNullException(nameof(stream));
             _settings = settings ?? new XmlFormatWriterSettings();
@@ -60,6 +60,7 @@ namespace NetSerializer.V5.Formatters.Xml {
             _writer.WriteAttribute("version", _serializerVersion);
             _writer.WriteAttribute("encodeStrings", _settings.EncodedStrings);
             _writer.WriteAttribute("useNames", _settings.UseNames);
+            _writer.WriteAttribute("compactMode", _settings.CompactMode);
             _writer.WriteAttribute("useMeta", _settings.UseMeta);
             _writer.WriteStartElement("data");
             _writer.WriteAttribute("version", version);
@@ -101,7 +102,7 @@ namespace NetSerializer.V5.Formatters.Xml {
             if (_settings.UseNames && String.IsNullOrEmpty(name))
                 throw new ArgumentNullException(nameof(name));
 
-            _writer.WriteStartElement("value");
+            _writer.WriteStartElement(_settings.CompactMode ? "v" : "value");
             if (_settings.UseNames)
                 _writer.WriteAttribute("name", name);
 
@@ -117,7 +118,7 @@ namespace NetSerializer.V5.Formatters.Xml {
             if (_settings.UseNames && String.IsNullOrEmpty(name))
                 throw new ArgumentNullException(nameof(name));
 
-            _writer.WriteStartElement("null");
+            _writer.WriteStartElement(_settings.CompactMode ? "n" : "null");
             if (_settings.UseNames)
                 _writer.WriteAttribute("name", name);
             _writer.WriteEndElement();
@@ -130,7 +131,7 @@ namespace NetSerializer.V5.Formatters.Xml {
             if (_settings.UseNames && String.IsNullOrEmpty(name))
                 throw new ArgumentNullException(nameof(name));
 
-            _writer.WriteStartElement("reference");
+            _writer.WriteStartElement(_settings.CompactMode ? "r" : "reference");
             if (_settings.UseNames)
                 _writer.WriteAttribute("name", name);
             _writer.WriteAttribute("id", id);
@@ -147,7 +148,7 @@ namespace NetSerializer.V5.Formatters.Xml {
             if (obj == null)
                 throw new ArgumentNullException(nameof(obj));
 
-            _writer.WriteStartElement("object");
+            _writer.WriteStartElement(_settings.CompactMode ? "o" : "object");
             if (_settings.UseNames)
                 _writer.WriteAttribute("name", name);
 
@@ -181,7 +182,7 @@ namespace NetSerializer.V5.Formatters.Xml {
                 throw new InvalidOperationException(
                     String.Format("No se puede escribir el tipo '{0}'.", type));
 
-            _writer.WriteStartElement("struct");
+            _writer.WriteStartElement(_settings.CompactMode ? "s" : "struct");
             if (_settings.UseNames)
                 _writer.WriteAttribute("name", name);
         }
@@ -200,7 +201,7 @@ namespace NetSerializer.V5.Formatters.Xml {
             if (_settings.UseNames && String.IsNullOrEmpty(name))
                 throw new ArgumentNullException(nameof(name));
 
-            _writer.WriteStartElement("array");
+            _writer.WriteStartElement(_settings.CompactMode ? "a" : "array");
             if (_settings.UseNames)
                 _writer.WriteAttribute("name", name);
 
@@ -230,9 +231,15 @@ namespace NetSerializer.V5.Formatters.Xml {
             _writer.WriteEndElement();
         }
 
+        /// <summary>
+        /// Obte el nom del tipus.
+        /// </summary>
+        /// <param name="type">El tipus.</param>
+        /// <returns>El nom.</returns>
+        /// 
         private static string GetTypeName(Type type) {
 
-            return String.Format("{0}, {1}", type.FullName, type.Assembly.GetName().Name);
+            return String.Format("{0}, {1}", type, type.Assembly.GetName().Name);
         }
 
         /// <summary>

@@ -6,11 +6,13 @@
             <xs:sequence>
                 <xs:element ref="meta" minOccurs="0" maxOccurs="1"/>
                 <xs:element ref="data" minOccurs="1" maxOccurs="1"/>
+                <xs:element ref="signature" minOccurs="0" maxOccurs="1"/>
             </xs:sequence>
             <xs:attribute name="version" use="required" type="xs:integer"/>
             <xs:attribute name="encodeStrings" use="optional" type="xs:boolean" default="false"/>
             <xs:attribute name="useNames" use="optional" type="xs:boolean" default="false"/>
             <xs:attribute name="useMeta" use="optional" type="xs:boolean" default="false"/>
+            <xs:attribute name="compactMode" use="optional" type="xs:boolean" default="false"/>
         </xs:complexType>
     </xs:element>
 
@@ -25,70 +27,90 @@
             <xs:attribute name="version" use="required" type="xs:integer"/>
         </xs:complexType>
     </xs:element>
-    
-    <xs:element name="array">
-        <xs:complexType>
-            <xs:choice minOccurs="0" maxOccurs="unbounded">
-                <xs:element ref="object"/>
-                <xs:element ref="reference"/>
-                <xs:element ref="array"/>
-                <xs:element ref="null"/>
-                <xs:element ref="value"/>
-                <xs:element ref="struct"/>
-            </xs:choice>
-            <xs:attribute name="name" use="optional" type="xs:string"/>
-            <xs:attribute name="count" use="optional" type="xs:integer" default="0"/>
-            <xs:attribute name="bound" use="required" type="xs:string"/>
-        </xs:complexType>
-    </xs:element>
 
-    <xs:element name="struct">
-        <xs:complexType>
-            <xs:choice minOccurs="0" maxOccurs="unbounded">
-                <xs:element ref="object"/>
-                <xs:element ref="reference"/>
-                <xs:element ref="array"/>
-                <xs:element ref="null"/>
-                <xs:element ref="value"/>
-                <xs:element ref="struct"/>
-            </xs:choice>
-            <xs:attribute name="name" use="optional" type="xs:string"/>
-        </xs:complexType>
-    </xs:element>
+    <xs:element name="signature"/>
+
+    <xs:element name="object" type="objectType"/>
+    <xs:element name="o" substitutionGroup="object"/>
+
+    <xs:element name="array" type="arrayType"/>
+    <xs:element name="a" substitutionGroup="array"/>
+
+    <xs:element name="struct" type="structType"/>
+    <xs:element name="s" substitutionGroup="struct"/>
+
+    <xs:element name="reference" type="referenceType"/>
+    <xs:element name="r" substitutionGroup="reference"/>
+
+    <xs:element name="value" type="valueType"/>
+    <xs:element name="v" substitutionGroup="value"/>
     
-    <xs:element name="object">
-        <xs:complexType>
-            <xs:choice minOccurs="0" maxOccurs="unbounded">
-                <xs:element ref="object"/>
-                <xs:element ref="reference"/>
-                <xs:element ref="array"/>
-                <xs:element ref="null"/>
-                <xs:element ref="value"/>
-                <xs:element ref="struct"/>
-            </xs:choice>
-            <xs:attribute name="id" use="required" type="xs:integer"/>
-            <xs:attribute name="name" use="optional" type="xs:string"/>
-            <xs:attribute name="type" use="required" type="xs:string"/>
-        </xs:complexType>
-    </xs:element>
-    
-    <xs:element name="reference">
-        <xs:complexType>
-            <xs:attribute name="id" use="required" type="xs:integer"/>
-            <xs:attribute name="name" use="optional" type="xs:string"/>
-        </xs:complexType>
-    </xs:element>
-    
-    <xs:element name="null">
-        <xs:complexType>
-            <xs:attribute name="name" use="optional" type="xs:string"/>
-        </xs:complexType>
-    </xs:element>
-    
-    <xs:element name="value">
-        <xs:complexType mixed="true">
-            <xs:attribute name="name" use="optional" type="xs:string"/>
-        </xs:complexType>
-    </xs:element>
+    <xs:element name="null" type="nullType"/>
+    <xs:element name="n" substitutionGroup="null"/>
+
+    <!-- arrayType
+    -->
+    <xs:complexType name="arrayType">
+        <xs:choice minOccurs="0" maxOccurs="unbounded">
+            <xs:element ref="object"/>
+            <xs:element ref="reference"/>
+            <xs:element ref="array"/>
+            <xs:element ref="null"/>
+            <xs:element ref="value"/>
+            <xs:element ref="struct"/>
+        </xs:choice>
+        <xs:attribute name="name" use="optional" type="xs:string"/>
+        <xs:attribute name="count" use="optional" type="xs:integer" default="0"/>
+        <xs:attribute name="bound" use="required" type="xs:string"/>
+    </xs:complexType>
+
+    <!-- structType
+    -->
+    <xs:complexType name="structType">
+        <xs:choice minOccurs="0" maxOccurs="unbounded">
+            <xs:element ref="object"/>
+            <xs:element ref="reference"/>
+            <xs:element ref="array"/>
+            <xs:element ref="null"/>
+            <xs:element ref="value"/>
+            <xs:element ref="struct"/>
+        </xs:choice>
+        <xs:attribute name="name" use="optional" type="xs:string"/>
+    </xs:complexType>
+
+    <!-- objectType
+    -->
+    <xs:complexType name="objectType">
+        <xs:choice minOccurs="0" maxOccurs="unbounded">
+            <xs:element ref="object"/>
+            <xs:element ref="reference"/>
+            <xs:element ref="array"/>
+            <xs:element ref="null"/>
+            <xs:element ref="value"/>
+            <xs:element ref="struct"/>
+        </xs:choice>
+        <xs:attribute name="id" use="required" type="xs:integer"/>
+        <xs:attribute name="name" use="optional" type="xs:string"/>
+        <xs:attribute name="type" use="required" type="xs:string"/>
+    </xs:complexType>
+
+    <!-- referenceType
+    -->
+    <xs:complexType name="referenceType">
+        <xs:attribute name="id" use="required" type="xs:integer"/>
+        <xs:attribute name="name" use="optional" type="xs:string"/>
+    </xs:complexType>
+
+    <!-- nullType
+    -->
+    <xs:complexType name="nullType">
+        <xs:attribute name="name" use="optional" type="xs:string"/>
+    </xs:complexType>
+
+    <!-- valueType
+    -->
+    <xs:complexType name ="valueType" mixed="true">
+        <xs:attribute name="name" use="optional" type="xs:string"/>
+    </xs:complexType>
     
 </xs:schema>

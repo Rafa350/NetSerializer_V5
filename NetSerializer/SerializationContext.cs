@@ -180,12 +180,17 @@ namespace NetSerializer.V5 {
             return this;
         }
 
-        public SerializationContext Write<T>(string name, T value) {
+        public SerializationContext Write(string name, object value, Type type) {
 
-            var typeSerializer = GetTypeSerializer(typeof(T));
-            typeSerializer.Serialize(this, name, typeof(T), value);
+            var typeSerializer = GetTypeSerializer(type);
+            typeSerializer.Serialize(this, name, type, value);
 
             return this;
+        }
+
+        public SerializationContext Write<T>(string name, T value) {
+
+            return Write(name, value, typeof(T));
         }
 
         public FormatWriter Writer =>

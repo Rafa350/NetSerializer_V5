@@ -34,6 +34,7 @@ namespace NetSerializer.V5.TypeSerializers {
             // Es important l'ordre en que es registren els serialitzadors
             //
             _serializerSet.Add(new ValueSerializer());    // Sempre el primer
+            _serializerSet.Add(new ListSerializer());
             _serializerSet.Add(new ArraySerializer());
             _serializerSet.Add(new StructSerializer());
             _serializerSet.Add(new ClassSerializer());    // Sempre l'ultim
