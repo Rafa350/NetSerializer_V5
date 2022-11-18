@@ -3,7 +3,7 @@
         <CustomProduct>NetSerializer</CustomProduct>
         <CustomCopyright>(c) 2014..2022 Rafael Serrano [rsr.openware@gmail.com]</CustomCopyright>
         <CustomAuthors>Rafael Serrano</CustomAuthors>
-        <CustomVersion>5.1.21</CustomVersion>
+        <CustomVersion>5.1.22</CustomVersion>
     </PropertyGroup>  
 </Project>
 
