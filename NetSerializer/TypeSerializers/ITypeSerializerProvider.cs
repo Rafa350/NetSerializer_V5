@@ -14,6 +14,6 @@ namespace NetSerializer.V5.TypeSerializers {
         /// <param name="type">El tipus.</param>
         /// <returns>El serialitzador. Null si no troba cap.</returns>
         /// 
-        ITypeSerializer GetTypeSerializer(Type type);
+        ITypeSerializer GetTypeSerializer(Type type, bool throwOnError = true);
     }
 }

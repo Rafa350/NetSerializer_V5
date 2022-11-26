@@ -5,8 +5,8 @@ namespace NetSerializer.V5.Attributes {
     [AttributeUsage(AttributeTargets.Property)]
     public sealed class NetSerializerOptionsAttribute: Attribute {
 
-        private string _aliasName;
-        private bool _exclude = false;
+        private readonly string _aliasName;
+        private readonly bool _exclude = false;
 
         public string AliasName {
             get => _aliasName;

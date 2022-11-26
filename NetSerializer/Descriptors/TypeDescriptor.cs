@@ -42,9 +42,14 @@ namespace NetSerializer.V5.Descriptors {
 
             // Obte els metodes de creacio, serialitzacio i deserialitzacio
             //
-            _createMethodInfo = type.GetMethod("Create", BindingFlags.Static | BindingFlags.Public, new Type[] { typeof(DeserializationContext) });
-            _serializeMethodInfo = type.GetMethod("Serialize", BindingFlags.Instance | BindingFlags.Public, new Type[] { typeof(SerializationContext) });
-            _deserializeMethodInfo = type.GetMethod("Deserialize", BindingFlags.Instance | BindingFlags.Public, new Type[] { typeof(DeserializationContext) });
+            string createMethodName = "Create";
+            _createMethodInfo = type.GetMethod(createMethodName, BindingFlags.Static | BindingFlags.Public, new Type[] { typeof(DeserializationContext) });
+
+            string serializeMethodName = "Serialize";
+            _serializeMethodInfo = type.GetMethod(serializeMethodName, BindingFlags.Instance | BindingFlags.Public, new Type[] { typeof(SerializationContext) });
+
+            string deserializeMethodName = "Deserialize";
+            _deserializeMethodInfo = type.GetMethod(deserializeMethodName, BindingFlags.Instance | BindingFlags.Public, new Type[] { typeof(DeserializationContext) });
 
             // Obte les propietats, i si son serialitzables, les afegeix a la llista.
             //

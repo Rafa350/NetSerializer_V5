@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Reflection;
-using NetSerializer.V5.Attributes;
-using NetSerializer.V5.TypeSerializers.Serializers;
+using System.Linq;
 
 namespace NetSerializer.V5.TypeSerializers {
 
@@ -12,7 +10,7 @@ namespace NetSerializer.V5.TypeSerializers {
     /// 
     public sealed class TypeSerializerProvider: ITypeSerializerProvider {
 
-        private readonly List<ITypeSerializer> _serializerSet = new List<ITypeSerializer>();
+        private readonly List<ITypeSerializer> _serializerInstances = new List<ITypeSerializer>();
         private readonly Dictionary<Type, ITypeSerializer> _serializerCache = new Dictionary<Type, ITypeSerializer>();
 
         /// <summary>
@@ -21,86 +19,49 @@ namespace NetSerializer.V5.TypeSerializers {
         /// 
         public TypeSerializerProvider() {
 
-            AddCustomSerializers();
-            AddDefaultSerializers();
+            AddSerializers();
         }
 
         /// <summary>
-        /// Registra els serialitzadors per defecte..
+        /// Afegeix els serialitzadors que es trobin el domini de l'aplicacio.
         /// </summary>
         /// 
-        private void AddDefaultSerializers() {
+        private void AddSerializers() {
 
-            // Es important l'ordre en que es registren els serialitzadors
-            //
-            _serializerSet.Add(new ValueSerializer());    // Sempre el primer
-            _serializerSet.Add(new ListSerializer());
-            _serializerSet.Add(new ArraySerializer());
-            _serializerSet.Add(new StructSerializer());
-            _serializerSet.Add(new ClassSerializer());    // Sempre l'ultim
-        }
-
-        /// <summary>
-        /// Registra els serialitzadors del objectes marcats amb l'atribut 'NetSerializer'
-        /// </summary>
-        /// 
-        private void AddCustomSerializers() {
-
-            var assemblies = AppDomain.CurrentDomain.GetAssemblies();
+            var assemblies = AppDomain.CurrentDomain.GetAssemblies().Where(a => !a.FullName.StartsWith("System.") && !a.FullName.StartsWith("Microsoft."));
             foreach (var assembly in assemblies) {
+
                 var types = assembly.GetTypes();
                 foreach (var type in types) {
-                    var attr = type.GetCustomAttribute<NetSerializerAttribute>();
-                    if (attr != null) {
-                        var serializerType = attr.SerializerType;
-                        if ((serializerType != null) && typeof(ITypeSerializer).IsAssignableFrom(serializerType)) {
-                            ITypeSerializer serializer = (ITypeSerializer)Activator.CreateInstance(serializerType);
-                            _serializerSet.Add(serializer);
-                        }
+
+                    // Afegeix si es una clase derivada de 'TypeSerializer'.
+                    //
+                    if (type.IsClass && !type.IsAbstract && (typeof(TypeSerializer).IsAssignableFrom(type)) && !typeof(CustomTypeSerializer).IsAssignableFrom(type)) {
+                        ITypeSerializer serializer = (ITypeSerializer)Activator.CreateInstance(type);
+                        _serializerInstances.Add(serializer);
                     }
                 }
             }
         }
 
         /// <summary>
-        /// Registra un serialitzador de tipus.
+        /// Obte el serialitzador per un tipus especificat.
         /// </summary>
-        /// <param name="serializer">El serializador a registrar.</param>
+        /// <param name="type">El tipus.</param>
+        /// <param name="throwOnError">True si llança una excepcio en cas d'error.</param>
+        /// <returns>El serialitzador.</returns>
+        /// <exception cref="InvalidOperationException">No s'ha trobat cap serialitzador.</exception>
         /// 
-        public void AddSerializer(ITypeSerializer serializer) {
-
-            if (serializer == null)
-                throw new ArgumentNullException(nameof(serializer));
-
-            if (_serializerSet.Contains(serializer))
-                throw new InvalidOperationException("Ya se registró este serializador.");
-
-            // S'insereixen abans dels serialitzadors estandard
-            //
-            _serializerSet.Insert(0, serializer);
-        }
-
-        /// <summary>
-        /// Obtiene el serializador para un tipo de objeto determinado.
-        /// </summary>
-        /// <param name="type">El tipo de objeto.</param>
-        /// <returns>El serializador correspondiente.</returns>
-        /// <exception cref="InvalidOperationException">Se produce si no hay ningun 
-        /// serializaor registrado para el tipo de objeto, o si no es posible 
-        /// instanciar el serializador.</exception>
-        /// 
-        public ITypeSerializer GetTypeSerializer(Type type) {
+        public ITypeSerializer GetTypeSerializer(Type type, bool throwOnError = true) {
 
             if (!_serializerCache.TryGetValue(type, out ITypeSerializer serializer)) {
 
-                serializer = _serializerSet.Find(item => item.CanProcess(type));
-                if (serializer == null)
-                    throw new InvalidOperationException(
-                        String.Format(
-                            "No se registró el serializador para el tipo '{0}'.",
-                            type));
+                serializer = _serializerInstances.Find(item => item.CanProcess(type));
+                if (serializer != null)
+                    _serializerCache.Add(type, serializer);
 
-                _serializerCache.Add(type, serializer);
+                else if (throwOnError)
+                    throw new InvalidOperationException($"No se registró el serializador para el tipo '{type}'.");
             }
 
             return serializer;

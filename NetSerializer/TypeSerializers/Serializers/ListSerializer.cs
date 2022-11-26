@@ -5,10 +5,8 @@ namespace NetSerializer.V5.TypeSerializers.Serializers {
     
     public sealed class ListSerializer: ClassSerializer {
         
-        public override bool CanProcess(Type type) {
-            
-            return base.CanProcess(type) && typeof(IList).IsAssignableFrom(type);
-        }
+        public override bool CanProcess(Type type) =>
+            base.CanProcess(type) && typeof(IList).IsAssignableFrom(type);
 
         protected override void SerializeObject(SerializationContext context, object obj) {
 

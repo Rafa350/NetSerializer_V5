@@ -12,10 +12,8 @@ namespace NetSerializer.V5.TypeSerializers.Serializers {
 
         /// <inheritdoc/>
         /// 
-        public override bool CanProcess(Type type) {
-
-            return type.IsClass && !type.IsArray;
-        }
+        public override bool CanProcess(Type type) =>
+            type.IsClass && !type.IsArray && !type.IsSpecialClass();
 
         /// <summary>
         /// Indica si es pot procesar la propietat.

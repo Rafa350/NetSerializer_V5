@@ -22,19 +22,6 @@ namespace NetSerializer.V5 {
         }
 
         /// <summary>
-        /// Afegeix un serialitzador de tipus.
-        /// </summary>
-        /// <param name="typeSeriaslizer">El serialitzacio.</param>
-        /// 
-        public void AddSerializer(ITypeSerializer typeSeriaslizer) {
-
-            if (typeSeriaslizer == null)
-                throw new ArgumentNullException(nameof(typeSeriaslizer));
-
-            _typeSerializerProvider.AddSerializer(typeSeriaslizer);
-        }
-
-        /// <summary>
         /// Serialitza un objecte.
         /// </summary>
         /// <param name="obj">El objecte a serialitzar.</param>

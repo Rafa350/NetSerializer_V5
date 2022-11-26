@@ -10,17 +10,8 @@ namespace NetSerializer.V5.TypeSerializers.Serializers {
 
         /// <inheritdoc/>
         /// 
-        public override bool CanProcess(Type type) {
-
-            return
-                type.IsPrimitive ||
-                type.IsEnum ||
-                (type == typeof(string)) ||
-                (type == typeof(DateTime)) ||
-                (type == typeof(TimeSpan)) ||
-                (type == typeof(Guid)) ||
-                (type == typeof(decimal));
-        }
+        public override bool CanProcess(Type type) => 
+            type.IsPrimitive || type.IsEnum || type.IsSpecialClass();
 
         /// <inheritdoc/>
         /// 

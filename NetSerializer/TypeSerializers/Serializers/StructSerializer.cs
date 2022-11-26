@@ -7,10 +7,8 @@ namespace NetSerializer.V5.TypeSerializers.Serializers {
 
         /// <inheritdoc/>
         /// 
-        public override bool CanProcess(Type type) {
-
-            return type.IsValueType && !type.IsPrimitive && !type.IsEnum;
-        }
+        public override bool CanProcess(Type type) =>
+            type.IsValueType && !type.IsPrimitive && !type.IsEnum;
 
         /// <inheritdoc/>
         /// 
