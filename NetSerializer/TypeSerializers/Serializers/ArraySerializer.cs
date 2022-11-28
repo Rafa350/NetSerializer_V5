@@ -84,6 +84,7 @@ namespace NetSerializer.V5.TypeSerializers.Serializers {
 
                 obj = array;
             }
+
         }
 
         /// <summary>

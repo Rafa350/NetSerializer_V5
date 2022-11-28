@@ -88,5 +88,12 @@ namespace NetSerializer.V5 {
 
             return (T)Deserialize(reader, typeof(T), name);
         }
+
+        /// <summary>
+        /// Obte el proveidor de serialitzadors.
+        /// </summary>
+        /// 
+        public TypeSerializerProvider TypeSerializerProvider =>
+            _typeSerializerProvider;
     }
 }

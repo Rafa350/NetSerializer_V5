@@ -1,7 +1,7 @@
-﻿using System.Diagnostics;
-using NetSerializer.V5;
+﻿using NetSerializer.V5;
 using NetSerializer.V5.Attributes;
 using NetSerializer.V5.Formatters.Xml;
+using NetSerializer.V5.TypeSerializers.Serializers;
 using Test.Model;
 
 namespace Test {
@@ -9,6 +9,15 @@ namespace Test {
     public enum Sex {
         Male,
         Female
+    }
+
+    public class Base {
+        public string Name { get; set; }
+        public string Description { get; set; }
+    }
+
+    public class Derived: Base {
+        public DateTime Date { get; set; }
     }
 
     public struct X {
@@ -21,6 +30,7 @@ namespace Test {
     public class TestClass {
 
         private LblPoint _point;
+        private Base _base = new Derived() { Date = DateTime.Now, Name = "hola", Description = "Saludo" };
         private DateTime _date = DateTime.Now;
         private string _stringValue = "abcd";
         private char _charValue = 'G';
@@ -82,6 +92,27 @@ namespace Test {
         public object O {
             get => _object;
             set => _object = value;
+        }
+
+        public Base Base { 
+            get => _base; 
+            set => _base = value; 
+        }
+    }
+
+    public class DerivedSerializer: CustomClassSerializer {
+
+        public override bool CanProcess(Type type) =>
+            type == typeof(Derived);
+
+        protected override void SerializeObject(SerializationContext context, object obj) {
+
+            base.SerializeObject(context, obj);
+        }
+
+        protected override void DeserializeObject(DeserializationContext context, object obj) {
+
+            base.DeserializeObject(context, obj);
         }
     }
 

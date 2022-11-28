@@ -57,14 +57,14 @@ namespace NetSerializer.V5.Descriptors {
         /// Indica si es pot lleigir la propietat.
         /// </summary>
         /// 
-        public bool CanRead =>
+        public bool CanGetValue =>
             _propertyInfo.CanRead;
 
         /// <summary>
         /// Indica si es pot escriure la propietat
         /// </summary>
         /// 
-        public bool CanWrite =>
+        public bool CanSetValue =>
             _propertyInfo.CanWrite;
     }
 }

@@ -75,7 +75,7 @@ namespace NetSerializer.V5.TypeSerializers.Serializers {
         /// 
         protected virtual void SerializeProperty(SerializationContext context, object obj, PropertyDescriptor propertyDescriptor) {
 
-            if (propertyDescriptor.CanRead) {
+            if (propertyDescriptor.CanGetValue) {
                 var serializer = context.GetTypeSerializer(propertyDescriptor.Type);
                 serializer.Serialize(context, propertyDescriptor.Name, propertyDescriptor.Type, propertyDescriptor.GetValue(obj));
             }
@@ -105,7 +105,7 @@ namespace NetSerializer.V5.TypeSerializers.Serializers {
         /// 
         protected virtual void DeserializeProperty(DeserializationContext context, object obj, PropertyDescriptor propertyDescriptor) {
 
-            if (propertyDescriptor.CanWrite) {
+            if (propertyDescriptor.CanSetValue) {
                 var typeSerializer = context.GetTypeSerializer(propertyDescriptor.Type);
                 typeSerializer.Deserialize(context, propertyDescriptor.Name, propertyDescriptor.Type, out object value);
                 propertyDescriptor.SetValue(obj, value);

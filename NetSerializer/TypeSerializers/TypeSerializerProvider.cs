@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using NetSerializer.V5.TypeSerializers.Serializers;
 
 namespace NetSerializer.V5.TypeSerializers {
 
@@ -34,14 +35,20 @@ namespace NetSerializer.V5.TypeSerializers {
                 var types = assembly.GetTypes();
                 foreach (var type in types) {
 
-                    // Afegeix si es una clase derivada de 'TypeSerializer'.
+                    // Afegeix si es una clase derivada de 'CustomTypeSerializer'.
                     //
-                    if (type.IsClass && !type.IsAbstract && (typeof(TypeSerializer).IsAssignableFrom(type)) && !typeof(CustomTypeSerializer).IsAssignableFrom(type)) {
+                    if (type.IsClass && !type.IsAbstract && typeof(CustomClassSerializer).IsAssignableFrom(type)) { 
                         ITypeSerializer serializer = (ITypeSerializer)Activator.CreateInstance(type);
                         _serializerInstances.Add(serializer);
                     }
                 }
             }
+
+            _serializerInstances.Add(new ValueSerializer());
+            _serializerInstances.Add(new ArraySerializer());
+            _serializerInstances.Add(new StructSerializer());
+            _serializerInstances.Add(new ListSerializer());
+            _serializerInstances.Add(new ClassSerializer());  // La ultima de la llista
         }
 
         /// <summary>

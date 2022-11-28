@@ -23,7 +23,7 @@ namespace NetSerializer.V5.TypeSerializers.Serializers {
         /// 
         protected virtual bool CanProcessProperty(PropertyDescriptor propertyDescriptor) {
 
-            return propertyDescriptor.CanRead && propertyDescriptor.CanWrite;
+            return propertyDescriptor.CanGetValue && propertyDescriptor.CanSetValue;
         }
 
         /// <inheritdoc/>
@@ -48,7 +48,15 @@ namespace NetSerializer.V5.TypeSerializers.Serializers {
                 if (id == -1) {
                     id = context.RegisterObject(obj);
                     writer.WriteObjectHeader(name, obj, id);
-                    SerializeObject(context, obj);
+
+                    // Si te un serialitzador especific, l'utilitza
+                    //
+                    var serializer = context.GetTypeSerializer(obj.GetType());
+                    if (serializer is CustomClassSerializer customSerializer)
+                        customSerializer.SerializeObject(context, obj);
+                    else
+                        SerializeObject(context, obj);
+
                     writer.WriteObjectTail();
                 }
                 else
@@ -69,7 +77,7 @@ namespace NetSerializer.V5.TypeSerializers.Serializers {
             ReadObjectResult result = reader.ReadObjectHeader(name);
             if (result.ResultType == ReadObjectResultType.Object) {
 
-                Type objectType = result.ObjectType;
+                var objectType = result.ObjectType;
 
                 if (!type.IsAssignableFrom(objectType))
                     throw new InvalidOperationException(
@@ -77,7 +85,15 @@ namespace NetSerializer.V5.TypeSerializers.Serializers {
 
                 obj = CreateObject(context, objectType);
                 context.Register(obj);
-                DeserializeObject(context, obj);
+
+                // Si te un serialitzador especific, l'utilitza
+                //
+                var serializer = context.GetTypeSerializer(obj.GetType());
+                if (serializer is CustomClassSerializer customSerializer)
+                    customSerializer.DeserializeObject(context, obj);
+                else
+                    DeserializeObject(context, obj);
+
                 reader.ReadObjectTail();
             }
          
@@ -120,7 +136,7 @@ namespace NetSerializer.V5.TypeSerializers.Serializers {
 
             else {
                 foreach (var propertyDescriptor in typeDescriptor.PropertyDescriptors)
-                    if (CanProcessProperty(propertyDescriptor))
+                    if (CanProcessProperty(propertyDescriptor) && CanSerializeProperty(context, propertyDescriptor))
                         SerializeProperty(context, obj, propertyDescriptor);
             }
         }
@@ -135,11 +151,26 @@ namespace NetSerializer.V5.TypeSerializers.Serializers {
         /// 
         protected virtual void SerializeProperty(SerializationContext context, object obj, PropertyDescriptor propertyDescriptor) {
 
-            if (propertyDescriptor.CanRead) {
-                var serializer = context.GetTypeSerializer(propertyDescriptor.Type);
+            if (propertyDescriptor.CanGetValue) {
+                
                 var value = propertyDescriptor.GetValue(obj);
-                serializer.Serialize(context, propertyDescriptor.Name, propertyDescriptor.Type, value);
+                var type = propertyDescriptor.Type;
+
+                var serializer = context.GetTypeSerializer(type);
+                serializer.Serialize(context, propertyDescriptor.Name, type, value);
             }
+        }
+
+        /// <summary>
+        /// Comprova si es pot serialitzar una propietat.
+        /// </summary>
+        /// <param name="context">El context de serialitzacio.</param>
+        /// <param name="propertyDescriptor">El descriptor de la propietat.</param>
+        /// <returns>True en cas afitmatiu.</returns>
+        /// 
+        protected virtual bool CanSerializeProperty(SerializationContext context, PropertyDescriptor propertyDescriptor) {
+
+            return true;
         }
 
         /// <summary>
@@ -158,7 +189,7 @@ namespace NetSerializer.V5.TypeSerializers.Serializers {
             
             else {
                 foreach (var propertyDescriptor in typeDescriptor.PropertyDescriptors)
-                    if (CanProcessProperty(propertyDescriptor))
+                    if (CanProcessProperty(propertyDescriptor) && CanDeserializeProperty(context, propertyDescriptor))
                         DeserializeProperty(context, obj, propertyDescriptor);
             }
         }
@@ -172,11 +203,23 @@ namespace NetSerializer.V5.TypeSerializers.Serializers {
         /// 
         protected virtual void DeserializeProperty(DeserializationContext context, object obj, PropertyDescriptor propertyDescriptor) {
 
-            if (propertyDescriptor.CanWrite) {
+            if (propertyDescriptor.CanSetValue) {
                 var serializer = context.GetTypeSerializer(propertyDescriptor.Type);
                 serializer.Deserialize(context, propertyDescriptor.Name, propertyDescriptor.Type, out object value);
                 propertyDescriptor.SetValue(obj, value);
             }
+        }
+
+        /// <summary>
+        /// Comprova si es pot deserialitzar una propietat.
+        /// </summary>
+        /// <param name="context">El context de deserialitzacio.</param>
+        /// <param name="propertyDescriptor">El descriptor de la propietat.</param>
+        /// <returns>True en cas afirmatiu.</returns>
+        /// 
+        protected virtual bool CanDeserializeProperty(DeserializationContext context, PropertyDescriptor propertyDescriptor) {
+
+            return true;
         }
     }
 }
