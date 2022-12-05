@@ -30,6 +30,11 @@ namespace NetSerializer.V5.Formatters.JSon {
             throw new System.NotImplementedException();
         }
 
+        /// <inheritdoc/>
+        /// 
+        public override void Skip(string name) {
+        }
+
         public override void Initialize() {
             throw new System.NotImplementedException();
         }

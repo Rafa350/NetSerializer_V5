@@ -49,93 +49,77 @@ namespace NetSerializer.V5 {
         public ITypeSerializer GetTypeSerializer(Type type) =>
             _typeSerializerProvider.GetTypeSerializer(type);
 
-        public DeserializationContext Read(string name, out bool value) {
-
-            var typeSerializer = GetTypeSerializer(typeof(bool));
-            typeSerializer.Deserialize(this, name, typeof(bool), out object v); 
-            value = (bool) v;
-
-            return this;
-        }
-
-        public DeserializationContext Read(string name, out byte value) {
-
-            var typeSerializer = GetTypeSerializer(typeof(byte));
-            typeSerializer.Deserialize(this, name, typeof(byte), out object v);
-            value = (byte)v;
-
-            return this;
-        }
-
-        public DeserializationContext Read(string name, out sbyte value) {
-
-            var typeSerializer = GetTypeSerializer(typeof(sbyte));
-            typeSerializer.Deserialize(this, name, typeof(sbyte), out object v);
-            value = (sbyte)v;
-
-            return this;
-        }
-
-        public DeserializationContext Read(string name, out short value) {
-
-            var typeSerializer = GetTypeSerializer(typeof(short));
-            typeSerializer.Deserialize(this, name, typeof(short), out object v);
-            value = (short)v;
-
-            return this;
-        }
-
-        public DeserializationContext Read(string name, out ushort value) {
-
-            var typeSerializer = GetTypeSerializer(typeof(ushort));
-            typeSerializer.Deserialize(this, name, typeof(ushort), out object v);
-            value = (ushort)v;
-
-            return this;
-        }
-
-        public DeserializationContext Read(string name, out int value) {
-
-            var typeSerializer = GetTypeSerializer(typeof(int));
-            typeSerializer.Deserialize(this, name, typeof(int), out object v);
-            value = (int)v;
-
-            return this;
-        }
-
-        public DeserializationContext Read(string name, out uint value) {
-
-            var typeSerializer = GetTypeSerializer(typeof(uint));
-            typeSerializer.Deserialize(this, name, typeof(uint), out object v);
-            value = (uint)v;
-
-            return this;
-        }
-
-        public DeserializationContext Read(string name, out long value) {
-
-            var typeSerializer = GetTypeSerializer(typeof(long));
-            typeSerializer.Deserialize(this, name, typeof(long), out object v);
-            value = (long)v;
-
-            return this;
-        }
-
-        public DeserializationContext Read(string name, out ulong value) {
-
-            var typeSerializer = GetTypeSerializer(typeof(ulong));
-            typeSerializer.Deserialize(this, name, typeof(ulong), out object v);
-            value = (ulong)v;
-
-            return this;
-        }
-
+        /// <summary>
+        /// Deserialitza un objecte.
+        /// </summary>
+        /// <param name="name">El nom.</param>
+        /// <param name="value">El objecte.</param>
+        /// <param name="type">El tipus del objecte.</param>
+        /// <returns>This.</returns>
+        /// 
         public DeserializationContext Read(string name, out object value, Type type) {
 
             var typeSerializer = GetTypeSerializer(type);
             typeSerializer.Deserialize(this, name, type, out value);
 
             return this;
+        }
+
+        /// <summary>
+        /// Deserialitza un objecte.
+        /// </summary>
+        /// <param name="name">El nom.</param>
+        /// <param name="value">El objecte.</param>
+        /// <typeparam name="T">El tipus del objecte.</typeparam>
+        /// <returns>This.</returns>
+        /// 
+        public DeserializationContext Read<T>(string name, out T value) {
+
+            Read(name, out object o, typeof(T));
+            value = (T)o;
+
+            return this;
+        }
+
+        /// <summary>
+        /// Deserialitza un valor 'bool'
+        /// </summary>
+        /// <param name="name">El nom.</param>
+        /// <returns>El valor.</returns>
+        /// 
+        public bool ReadBool(string name) {
+
+            Read(name, out bool value);
+            return value;
+        }
+
+        public int ReadInt(string name) {
+
+            Read(name, out int value);
+            return value;
+        }
+
+        public double ReadDouble(string name) {
+
+            Read(name, out double value);
+            return value;
+        }
+
+        public T ReadObject<T>(string name) {
+
+            Read(name, out object o, typeof(T));
+            return (T)o;
+        }
+
+        public T ReadEnum<T>(string name) {
+
+            Read(name, out object o, typeof(T));
+            return (T)o;
+        }
+
+        public void Skip(string name) {
+
+            _formatter.Skip(name);
         }
 
         /// <summary>

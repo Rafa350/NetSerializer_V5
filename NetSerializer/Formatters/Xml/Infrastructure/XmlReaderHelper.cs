@@ -1,11 +1,13 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Reflection.PortableExecutable;
 using System.Xml;
 
 namespace NetSerializer.V5.Formatters.Xml.Infrastructure {
 
     internal static class XmlReaderHelper {
 
-        public static IDictionary<string, string> GetAttributes(this XmlReader reader) {
+        public static IDictionary<string, string> ReadAttributes(this XmlReader reader) {
 
             Dictionary<string, string> attributes = new Dictionary<string, string>();
             if (reader.HasAttributes) {
@@ -15,6 +17,21 @@ namespace NetSerializer.V5.Formatters.Xml.Infrastructure {
             }
 
             return attributes;
+        }
+
+        public static string ReadContent(this XmlReader reader) {
+
+            string value = String.Empty;
+
+            if (!reader.IsEmptyElement) {
+                reader.Read();
+                if (reader.NodeType != XmlNodeType.EndElement) {
+                    value = reader.Value;
+                    reader.Read();
+                }
+            }
+
+            return value;
         }
     }
 }

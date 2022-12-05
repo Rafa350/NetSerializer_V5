@@ -90,7 +90,7 @@ namespace NetSerializer.V5.Formatters.Xml {
             //
             _reader.Read();
             if (_reader.HasAttributes) {
-                var attributes = _reader.GetAttributes();
+                var attributes = _reader.ReadAttributes();
                 string value;
                 if (attributes.TryGetValue("version", out value))
                     _serializerVersion = XmlConvert.ToInt32(value);
@@ -111,7 +111,7 @@ namespace NetSerializer.V5.Formatters.Xml {
             //
             _reader.Read();
             if (_reader.HasAttributes) {
-                var attributes = _reader.GetAttributes();
+                var attributes = _reader.ReadAttributes();
                 if (attributes.TryGetValue("version", out string value))
                     _dataVersion = XmlConvert.ToInt32(value);
             }
@@ -145,21 +145,25 @@ namespace NetSerializer.V5.Formatters.Xml {
         public override object ReadValue(string name, Type type) {
 
             _reader.Read();
+            if (_reader.NodeType != XmlNodeType.Element)
+                throw new InvalidOperationException("Se esperaba inicio de nodo.");
 
-            if (_reader.Name == (_compactMode ? "n" : "null"))
+            var attributes = _reader.ReadAttributes();
+
+            // Comprova el nom.
+            //
+            if (_useNames && _settings.CheckNames) 
+                if (name != GetAttribute(attributes, "name"))
+                    throw new InvalidOperationException($"Se esperaba el nombre '{name}', para este nodo.");
+
+            if (_reader.Name == (_compactMode ? "n" : "null")) 
                 return null;
 
-            else {
+            else if (_reader.Name == (_compactMode ? "v" : "value")) 
+                return ConvertFromString(_reader.ReadContent(), type);
 
-                var attributes = _reader.GetAttributes();
-
-                if (_useNames && _settings.CheckNames) {
-                    if (name != GetAttribute(attributes, "name"))
-                        throw new InvalidOperationException(String.Format("Se esperaba un valor de nombre '{0}'.", name));
-                }
-
-                return ConvertFromString(GetContent(), type);
-            }
+            else
+                throw new InvalidOperationException("Se esperaba un nodo 'null' o 'value'.");
         }
 
         /// <inheritdoc/>
@@ -167,40 +171,34 @@ namespace NetSerializer.V5.Formatters.Xml {
         public override ReadObjectResult ReadObjectHeader(string name) {
 
             _reader.Read();
+            if (_reader.NodeType != XmlNodeType.Element)
+                throw new InvalidOperationException("Se esperaba inicio de nodo.");
 
-            if (_reader.Name == (_compactMode ? "n" : "null"))
+            var attributes = _reader.ReadAttributes();
+
+            // Comprova el nom.
+            //
+            if (_useNames && _settings.CheckNames)
+                if (name != GetAttribute(attributes, "name"))
+                    throw new InvalidOperationException($"Se esperaba el nombre '{name}', para este nodo.");
+
+            if (_reader.Name == (_compactMode ? "n" : "null")) 
                 return new ReadObjectResult() {
                     ResultType = ReadObjectResultType.Null
                 };
 
-            else if (_reader.Name == (_compactMode ? "o" : "object")) {
-
-                var attributes = _reader.GetAttributes();
-
-                if (_useNames && _settings.CheckNames)
-                    if (name != GetAttribute(attributes, "name"))
-                        throw new InvalidOperationException(String.Format("Se esperaba un objeto de nombre '{0}'.", name));
-
+            else if (_reader.Name == (_compactMode ? "o" : "object")) 
                 return new ReadObjectResult() {
                     ResultType = ReadObjectResultType.Object,
                     ObjectType = Type.GetType(GetAttribute(attributes, "type", true)),
                     ObjectId = XmlConvert.ToInt32(GetAttribute(attributes, "id", true))
                 };
-            }
 
-            else if (_reader.Name == (_compactMode ? "r" : "reference")) {
-
-                var attributes = _reader.GetAttributes();
-
-                if (_useNames && _settings.CheckNames)
-                    if (name != GetAttribute(attributes, "name"))
-                        throw new InvalidOperationException(String.Format("Se esperaba un objeto de nombre '{0}'.", name));
-
+            else if (_reader.Name == (_compactMode ? "r" : "reference")) 
                 return new ReadObjectResult() {
                     ResultType = ReadObjectResultType.Reference,
                     ObjectId = XmlConvert.ToInt32(GetAttribute(attributes, "id", true))
                 };
-            }
 
             else
                 throw new InvalidDataException("Se esperaba un nodo 'null', 'object' o 'reference'.");
@@ -218,6 +216,8 @@ namespace NetSerializer.V5.Formatters.Xml {
         public override void ReadStructHeader(string name, Type type) {
 
             _reader.Read();
+            if (_reader.NodeType != XmlNodeType.Element)
+                throw new InvalidOperationException("Se esperaba inicio de nodo.");
 
             if (_reader.Name != (_compactMode ? "s" : "struct"))
                 throw new InvalidDataException("Se esperaba 'struct'.");
@@ -235,6 +235,16 @@ namespace NetSerializer.V5.Formatters.Xml {
         public override ReadArrayResult ReadArrayHeader(string name) {
 
             _reader.Read();
+            if (_reader.NodeType != XmlNodeType.Element)
+                throw new InvalidOperationException("Se esperaba inicio de nodo.");
+
+            var attributes = _reader.ReadAttributes();
+
+            // Comprova el nom.
+            //
+            if (_useNames && _settings.CheckNames) 
+                if (name != GetAttribute(attributes, "name"))
+                    throw new InvalidOperationException($"Se esperaba el nombre '{name}', para este nodo.");
 
             if (_reader.Name == (_compactMode ? "n" : "null"))
                 return new ReadArrayResult() {
@@ -242,14 +252,6 @@ namespace NetSerializer.V5.Formatters.Xml {
                 };
 
             else if (_reader.Name == (_compactMode ? "a" : "array")) {
-
-                var attributes = _reader.GetAttributes();
-
-                if (_useNames && _settings.CheckNames) {
-                    if (name != GetAttribute(attributes, "name"))
-                        throw new InvalidOperationException(String.Format("Se esperaba 'name={0}',", name));
-                }
-
                 string[] boundStr = attributes["bound"].Split(new char[] { ',' });
                 var bound = new int[boundStr.Length];
                 for (int i = 0; i < boundStr.Length; i++)
@@ -275,6 +277,31 @@ namespace NetSerializer.V5.Formatters.Xml {
             _reader.Read();
         }
 
+        /// <inheritdoc/>
+        /// 
+        public override void Skip(string name) {
+
+            _reader.Read();
+            if (_reader.NodeType != XmlNodeType.Element)
+                throw new InvalidOperationException("Se esperaba inicio de nodo.");
+
+            var attributes = _reader.ReadAttributes();
+
+            // Comprova el nom.
+            //
+            if (_useNames && _settings.CheckNames)
+                if (name != GetAttribute(attributes, "name"))
+                    throw new InvalidOperationException(String.Format("Se esperaba un objeto de nombre '{0}'.", name));
+
+            if (_reader.Name == (_compactMode ? "n" : "null"))
+                return;
+
+            else {
+                while (_reader.NodeType != XmlNodeType.EndElement) 
+                    _reader.Read();
+            }
+        }
+
         /// <summary>
         /// Obte el valor d'un atribut.
         /// </summary>
@@ -291,26 +318,6 @@ namespace NetSerializer.V5.Formatters.Xml {
                 return null;
             else
                 throw new Exception(String.Format("El atributo obligatorio '{0}' no existe.", name));
-        }
-
-        /// <summary>
-        /// Obte el contingut d'un node.
-        /// </summary>
-        /// <returns></returns>
-        /// 
-        private string GetContent() {
-
-            string value = String.Empty;
-
-            if (!_reader.IsEmptyElement) {
-                _reader.Read();
-                if (_reader.NodeType != XmlNodeType.EndElement) {
-                    value = _reader.Value;
-                    _reader.Read();
-                }
-            }
-
-            return value;
         }
 
         /// <summary>

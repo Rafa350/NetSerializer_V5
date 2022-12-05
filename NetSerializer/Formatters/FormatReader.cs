@@ -80,6 +80,12 @@ namespace NetSerializer.V5.Formatters {
         public abstract void ReadStructTail();
 
         /// <summary>
+        /// Salta un node i pasa al seguent.
+        /// </summary>
+        /// 
+        public abstract void Skip(string name);
+
+        /// <summary>
         /// Inicia el proces de lectura de dades.
         /// </summary>
         /// 

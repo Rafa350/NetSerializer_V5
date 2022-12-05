@@ -1,5 +1,6 @@
 ﻿using NetSerializer.V5;
 using NetSerializer.V5.Attributes;
+using NetSerializer.V5.Descriptors;
 using NetSerializer.V5.Formatters.Xml;
 using NetSerializer.V5.TypeSerializers.Serializers;
 using Test.Model;
@@ -114,6 +115,16 @@ namespace Test {
 
             base.DeserializeObject(context, obj);
         }
+
+        protected override void DeserializeProperty(DeserializationContext context, object obj, PropertyDescriptor propertyDescriptor) {
+
+            base.DeserializeProperty(context, obj, propertyDescriptor);
+
+            // Es salta la seguent propietat despres de 'Date'
+            //
+            if (propertyDescriptor.Name == "Date")
+                context.Reader.Skip("ToSkip");
+        }
     }
 
     class Program {
@@ -122,7 +133,7 @@ namespace Test {
 
             var x = new TestClass();
 
-            XmlSerialize(@"c:\temp\ns_output.xml", x);
+            //XmlSerialize(@"c:\temp\ns_output.xml", x);
             var y = XmlDeserialize(@"c:\temp\ns_output.xml");
         }
 
