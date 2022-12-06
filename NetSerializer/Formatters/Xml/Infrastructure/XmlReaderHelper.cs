@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Reflection.PortableExecutable;
 using System.Xml;
 
 namespace NetSerializer.V5.Formatters.Xml.Infrastructure {

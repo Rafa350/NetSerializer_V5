@@ -10,7 +10,7 @@ namespace NetSerializer.V5.TypeSerializers.Serializers {
 
         /// <inheritdoc/>
         /// 
-        public override bool CanProcess(Type type) => 
+        public override bool CanProcess(Type type) =>
             type.IsPrimitive || type.IsEnum || type.IsSpecialClass();
 
         /// <inheritdoc/>
@@ -24,7 +24,7 @@ namespace NetSerializer.V5.TypeSerializers.Serializers {
             var writer = context.Writer;
             if (obj == null)
                 writer.WriteNull(name);
-            else 
+            else
                 writer.WriteValue(name, obj);
         }
 

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using NetSerializer.V5.Formatters;
 using NetSerializer.V5.TypeSerializers;
 
@@ -18,7 +19,10 @@ namespace NetSerializer.V5 {
         /// <param name="typeSerializerProvider">El proveidor de serialitzadors.</param>
         /// 
         public SerializationContext(FormatWriter formatter, ITypeSerializerProvider typeSerializerProvider) {
-            
+
+            Debug.Assert(formatter != null);
+            Debug.Assert(typeSerializerProvider != null);
+
             _formatter = formatter;
             _typeSerializerProvider = typeSerializerProvider;
         }
@@ -30,6 +34,8 @@ namespace NetSerializer.V5 {
         /// <returns>El identificador del objecte.</returns>
         /// 
         public int RegisterObject(object obj) {
+
+            Debug.Assert(obj != null);
 
             _register.Add(obj);
             return _register.Count - 1;
@@ -60,10 +66,16 @@ namespace NetSerializer.V5 {
         /// <param name="value">El valor.</param>
         /// <param name="type">El tipus del valor.</param>
         /// <returns>This</returns>
+        /// <exception cref="ArgumentNullException">Error amb els arguments.</exception>
         /// 
         public SerializationContext Write(string name, object value, Type type) {
 
+            if (type == null)
+                throw new ArgumentNullException(nameof(type));
+
             var typeSerializer = GetTypeSerializer(type);
+            Debug.Assert(typeSerializer != null);
+
             typeSerializer.Serialize(this, name, type, value);
 
             return this;
@@ -79,7 +91,13 @@ namespace NetSerializer.V5 {
         /// 
         public SerializationContext Write<T>(string name, T value) {
 
-            return Write(name, value, typeof(T));
+            var type = typeof(T);
+            var typeSerializer = GetTypeSerializer(type);
+            Debug.Assert(typeSerializer != null);
+
+            typeSerializer.Serialize(this, name, type, value);
+
+            return this;
         }
 
         /// <summary>

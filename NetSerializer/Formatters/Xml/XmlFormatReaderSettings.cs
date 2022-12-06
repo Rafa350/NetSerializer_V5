@@ -1,6 +1,4 @@
-﻿using System.Globalization;
-
-namespace NetSerializer.V5.Formatters.Xml {
+﻿namespace NetSerializer.V5.Formatters.Xml {
 
     public sealed class XmlFormatReaderSettings {
 

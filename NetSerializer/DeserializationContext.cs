@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using NetSerializer.V5.Formatters;
 using NetSerializer.V5.TypeSerializers;
 
@@ -17,8 +18,11 @@ namespace NetSerializer.V5 {
         /// <param name="formatter">El formatejador de lecrtura.</param>
         /// <param name="typeSerializerProvider">El proveidor de serialitzadors.</param>
         /// 
-        public DeserializationContext(FormatReader formatter, ITypeSerializerProvider typeSerializerProvider) { 
-            
+        public DeserializationContext(FormatReader formatter, ITypeSerializerProvider typeSerializerProvider) {
+
+            Debug.Assert(formatter != null);
+            Debug.Assert(typeSerializerProvider != null);
+
             _formatter = formatter;
             _typeSerializerProvider = typeSerializerProvider;
         }
@@ -28,8 +32,12 @@ namespace NetSerializer.V5 {
         /// </summary>
         /// <param name="obj">L'objecte.</param>
         /// 
-        public void Register(object obj) =>
+        public void Register(object obj) {
+
+            Debug.Assert(obj != null);
+
             _register.Add(obj);
+        }
 
         /// <summary>
         /// Obte l'objecte amb el identificador especificat.
@@ -60,6 +68,8 @@ namespace NetSerializer.V5 {
         public DeserializationContext Read(string name, out object value, Type type) {
 
             var typeSerializer = GetTypeSerializer(type);
+            Debug.Assert(typeSerializer != null);
+
             typeSerializer.Deserialize(this, name, type, out value);
 
             return this;
@@ -93,15 +103,57 @@ namespace NetSerializer.V5 {
             return value;
         }
 
+        public short ReadShort(string name) {
+
+            Read(name, out short value);
+            return value;
+        }
+
+        public ushort ReadUShort(string name) {
+
+            Read(name, out ushort value);
+            return value;
+        }
+
         public int ReadInt(string name) {
 
             Read(name, out int value);
             return value;
         }
 
+        public uint ReadUInt(string name) {
+
+            Read(name, out uint value);
+            return value;
+        }
+
+        public long ReadLong(string name) {
+
+            Read(name, out long value);
+            return value;
+        }
+
+        public ulong ReadULong(string name) {
+
+            Read(name, out ulong value);
+            return value;
+        }
+
+        public float ReadFloat(string name) {
+
+            Read(name, out float value);
+            return value;
+        }
+
         public double ReadDouble(string name) {
 
             Read(name, out double value);
+            return value;
+        }
+
+        public decimal ReadDecimal(string name) {
+
+            Read(name, out decimal value);
             return value;
         }
 
@@ -133,7 +185,7 @@ namespace NetSerializer.V5 {
         /// Obte el numero de versio.
         /// </summary>
         /// 
-        public int Version => 
+        public int Version =>
             _formatter.Version;
     }
 }

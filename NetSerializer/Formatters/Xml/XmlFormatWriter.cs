@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Text;
@@ -33,7 +34,7 @@ namespace NetSerializer.V5.Formatters.Xml {
             _settings = settings ?? new XmlFormatWriterSettings();
 
             if (!stream.CanWrite)
-                throw new InvalidOperationException("Es stream especificado no es de escritura.");
+                throw new InvalidOperationException("El stream especificado no es de escritura.");
         }
 
         /// <summary>
@@ -239,6 +240,8 @@ namespace NetSerializer.V5.Formatters.Xml {
         /// 
         private static string GetTypeName(Type type) {
 
+            Debug.Assert(type != null);
+
             return String.Format("{0}, {1}", type, type.Assembly.GetName().Name);
         }
 
@@ -250,6 +253,8 @@ namespace NetSerializer.V5.Formatters.Xml {
         /// <exception cref="InvalidOperationException">Es imposible realñitzar la converssio.</exception>
         /// 
         private static string ConvertToString(object obj) {
+
+            Debug.Assert(obj != null);
 
             Type type = obj.GetType();
 

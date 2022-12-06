@@ -95,9 +95,9 @@ namespace Test {
             set => _object = value;
         }
 
-        public Base Base { 
-            get => _base; 
-            set => _base = value; 
+        public Base Base {
+            get => _base;
+            set => _base = value;
         }
     }
 

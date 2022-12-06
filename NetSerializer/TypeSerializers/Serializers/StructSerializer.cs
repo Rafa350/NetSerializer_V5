@@ -20,7 +20,7 @@ namespace NetSerializer.V5.TypeSerializers.Serializers {
 
             var writer = context.Writer;
 
-            if (writer.CanWriteValue(type)) 
+            if (writer.CanWriteValue(type))
                 writer.WriteValue(name, obj);
 
             else {

@@ -2,9 +2,9 @@
 using System.Collections;
 
 namespace NetSerializer.V5.TypeSerializers.Serializers {
-    
+
     public sealed class ListSerializer: ClassSerializer {
-        
+
         public override bool CanProcess(Type type) =>
             base.CanProcess(type) && typeof(IList).IsAssignableFrom(type);
 
@@ -27,10 +27,10 @@ namespace NetSerializer.V5.TypeSerializers.Serializers {
             IList list = obj as IList;
             Type itemType = list.GetType().GetGenericArguments()[0];
 
-            int count = (int) context.Reader.ReadValue("$C", typeof(int));
+            int count = (int)context.Reader.ReadValue("$C", typeof(int));
 
             var typeSerializer = context.GetTypeSerializer(itemType);
-            for (int i = 0; i < count; i++) { 
+            for (int i = 0; i < count; i++) {
                 typeSerializer.Deserialize(context, String.Format("${0}", i), itemType, out object item);
                 list.Add(item);
             }

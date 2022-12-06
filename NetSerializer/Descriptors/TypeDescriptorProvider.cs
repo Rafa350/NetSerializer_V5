@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace NetSerializer.V5.Descriptors {
 
@@ -24,6 +25,8 @@ namespace NetSerializer.V5.Descriptors {
         /// <returns></returns>
         /// 
         public TypeDescriptor GetDescriptor(Type type) {
+
+            Debug.Assert(type != null);
 
             if (!_cache.TryGetValue(type, out TypeDescriptor typeDescriptor)) {
                 typeDescriptor = new TypeDescriptor(type);

@@ -15,7 +15,7 @@ namespace NetSerializer.V5.TypeSerializers {
         /// 
         public static bool IsSpecialClass(this Type type) {
 
-            return 
+            return
                 (type == typeof(string)) ||
                 (type == typeof(DateTime)) ||
                 (type == typeof(TimeSpan)) ||

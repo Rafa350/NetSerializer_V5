@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Reflection;
@@ -144,6 +145,8 @@ namespace NetSerializer.V5.Formatters.Xml {
         /// 
         public override object ReadValue(string name, Type type) {
 
+            Debug.Assert(type != null);
+
             _reader.Read();
             if (_reader.NodeType != XmlNodeType.Element)
                 throw new InvalidOperationException("Se esperaba inicio de nodo.");
@@ -152,14 +155,14 @@ namespace NetSerializer.V5.Formatters.Xml {
 
             // Comprova el nom.
             //
-            if (_useNames && _settings.CheckNames) 
+            if (_useNames && _settings.CheckNames)
                 if (name != GetAttribute(attributes, "name"))
                     throw new InvalidOperationException($"Se esperaba el nombre '{name}', para este nodo.");
 
-            if (_reader.Name == (_compactMode ? "n" : "null")) 
+            if (_reader.Name == (_compactMode ? "n" : "null"))
                 return null;
 
-            else if (_reader.Name == (_compactMode ? "v" : "value")) 
+            else if (_reader.Name == (_compactMode ? "v" : "value"))
                 return ConvertFromString(_reader.ReadContent(), type);
 
             else
@@ -182,19 +185,19 @@ namespace NetSerializer.V5.Formatters.Xml {
                 if (name != GetAttribute(attributes, "name"))
                     throw new InvalidOperationException($"Se esperaba el nombre '{name}', para este nodo.");
 
-            if (_reader.Name == (_compactMode ? "n" : "null")) 
+            if (_reader.Name == (_compactMode ? "n" : "null"))
                 return new ReadObjectResult() {
                     ResultType = ReadObjectResultType.Null
                 };
 
-            else if (_reader.Name == (_compactMode ? "o" : "object")) 
+            else if (_reader.Name == (_compactMode ? "o" : "object"))
                 return new ReadObjectResult() {
                     ResultType = ReadObjectResultType.Object,
                     ObjectType = Type.GetType(GetAttribute(attributes, "type", true)),
                     ObjectId = XmlConvert.ToInt32(GetAttribute(attributes, "id", true))
                 };
 
-            else if (_reader.Name == (_compactMode ? "r" : "reference")) 
+            else if (_reader.Name == (_compactMode ? "r" : "reference"))
                 return new ReadObjectResult() {
                     ResultType = ReadObjectResultType.Reference,
                     ObjectId = XmlConvert.ToInt32(GetAttribute(attributes, "id", true))
@@ -214,6 +217,8 @@ namespace NetSerializer.V5.Formatters.Xml {
         /// <inheritdoc/>
         /// 
         public override void ReadStructHeader(string name, Type type) {
+
+            Debug.Assert(type != null);
 
             _reader.Read();
             if (_reader.NodeType != XmlNodeType.Element)
@@ -242,7 +247,7 @@ namespace NetSerializer.V5.Formatters.Xml {
 
             // Comprova el nom.
             //
-            if (_useNames && _settings.CheckNames) 
+            if (_useNames && _settings.CheckNames)
                 if (name != GetAttribute(attributes, "name"))
                     throw new InvalidOperationException($"Se esperaba el nombre '{name}', para este nodo.");
 
@@ -297,7 +302,7 @@ namespace NetSerializer.V5.Formatters.Xml {
                 return;
 
             else {
-                while (_reader.NodeType != XmlNodeType.EndElement) 
+                while (_reader.NodeType != XmlNodeType.EndElement)
                     _reader.Read();
             }
         }
@@ -311,6 +316,9 @@ namespace NetSerializer.V5.Formatters.Xml {
         /// <returns>El valor de l'atribut.</returns>
         /// 
         private static string GetAttribute(IDictionary<string, string> attributes, string name, bool required = false) {
+
+            Debug.Assert(attributes != null);
+            Debug.Assert(!String.IsNullOrEmpty(name));
 
             if (attributes.ContainsKey(name))
                 return attributes[name];
@@ -329,6 +337,9 @@ namespace NetSerializer.V5.Formatters.Xml {
         /// <exception cref="InvalidOperationException">Imposible realitzar la converssio.</exception>
         /// 
         private static object ConvertFromString(string value, Type type) {
+
+            Debug.Assert(!String.IsNullOrEmpty(value));
+            Debug.Assert(type != null);
 
             // Primer ho intenta amb els conversors propis.
             //

@@ -96,10 +96,10 @@ namespace NetSerializer.V5.TypeSerializers.Serializers {
 
                 reader.ReadObjectTail();
             }
-         
-            else if (result.ResultType == ReadObjectResultType.Reference) 
+
+            else if (result.ResultType == ReadObjectResultType.Reference)
                 obj = context.GetObject(result.ObjectId);
-            
+
             else
                 obj = null;
         }
@@ -130,7 +130,7 @@ namespace NetSerializer.V5.TypeSerializers.Serializers {
 
             var type = obj.GetType();
             var typeDescriptor = TypeDescriptorProvider.Instance.GetDescriptor(type);
-            
+
             if (typeDescriptor.CanSerialize)
                 typeDescriptor.Serialize(context, obj);
 
@@ -152,7 +152,7 @@ namespace NetSerializer.V5.TypeSerializers.Serializers {
         protected virtual void SerializeProperty(SerializationContext context, object obj, PropertyDescriptor propertyDescriptor) {
 
             if (propertyDescriptor.CanGetValue) {
-                
+
                 var value = propertyDescriptor.GetValue(obj);
                 var type = propertyDescriptor.Type;
 
@@ -183,10 +183,10 @@ namespace NetSerializer.V5.TypeSerializers.Serializers {
 
             var type = obj.GetType();
             var typeDescriptor = TypeDescriptorProvider.Instance.GetDescriptor(type);
-            
-            if (typeDescriptor.CanDeserialize) 
+
+            if (typeDescriptor.CanDeserialize)
                 typeDescriptor.Deserialize(context, obj);
-            
+
             else {
                 foreach (var propertyDescriptor in typeDescriptor.PropertyDescriptors)
                     if (CanProcessProperty(propertyDescriptor) && CanDeserializeProperty(context, propertyDescriptor))
