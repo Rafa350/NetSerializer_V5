@@ -134,7 +134,7 @@ namespace Test {
             var x = new TestClass();
 
             //XmlSerialize(@"c:\temp\ns_output.xml", x);
-            var y = XmlDeserialize(@"c:\temp\ns_output.xml");
+            //var y = XmlDeserialize(@"c:\temp\ns_output.xml");
         }
 
         private static void XmlSerialize(string fileName, object obj) {
